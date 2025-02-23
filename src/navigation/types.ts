@@ -16,4 +16,6 @@ export type RootStackParamList = {
   Favorites: undefined;
   Settings: undefined;
   RandomChat: undefined;
+  Notifications: undefined;
+  ChatList: undefined;
 };

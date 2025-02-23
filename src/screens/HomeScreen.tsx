@@ -7,6 +7,8 @@ import { RootStackParamList } from "../navigation/types";
 import { Chat } from "../types";
 import { ChatListItem } from "../components/ChatListItem";
 import { RandomChatButton } from "../components/RandomChatButton";
+import { useTheme } from "../contexts/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 ////
 /// Tipos
@@ -14,15 +16,18 @@ import { RandomChatButton } from "../components/RandomChatButton";
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 ////
-/// Pantalla principal : TODO: Implementar la lógica para obtener los chats del usuario
-/// Ademas cambiar la UX de la pantalla principal a una que sea mas intuitiva y atractiva,
-/// y con más contenido.
+/// Pantalla principal
 ////
 export const HomeScreen: React.FC = () => {
   ////
   /// Navegación
   ////
   const navigation = useNavigation<NavigationProp>();
+
+  ////
+  /// Theme
+  ////
+  const { theme } = useTheme();
 
   ////
   /// Chats : TODO: Implementar la lógica para obtener los chats del usuario
@@ -33,7 +38,10 @@ export const HomeScreen: React.FC = () => {
   /// Renderizado
   ////
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background.primary }]}
+      edges={["bottom"]}
+    >
       <View style={styles.content}>
         <FlatList
           data={chats}
@@ -42,9 +50,17 @@ export const HomeScreen: React.FC = () => {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                No tienes chats activos.{"\n"}
-                ¡Inicia un chat aleatorio para comenzar!
+              <Ionicons
+                name="chatbubbles-outline"
+                size={64}
+                color={theme.icon.secondary}
+                style={styles.emptyIcon}
+              />
+              <Text style={[styles.emptyTitle, { color: theme.text.primary }]}>
+                No hay chats activos
+              </Text>
+              <Text style={[styles.emptyText, { color: theme.text.secondary }]}>
+                ¡Inicia un chat aleatorio para comenzar a conocer gente nueva!
               </Text>
             </View>
           )}
@@ -61,7 +77,6 @@ export const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
@@ -74,11 +89,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 32,
+  },
+  emptyIcon: {
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "center",
   },
   emptyText: {
     fontSize: 16,
-    color: "#666",
     textAlign: "center",
     lineHeight: 24,
   },

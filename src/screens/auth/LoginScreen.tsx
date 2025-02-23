@@ -14,6 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../navigation/types";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 ////
 /// Tipos
@@ -39,6 +41,11 @@ export const LoginScreen: React.FC = () => {
   ///
   const [loading, setLoading] = useState(false);
 
+  ///
+  /// Estado para mostrar/ocultar la contraseña
+  ///
+  const [showPassword, setShowPassword] = useState(false);
+
   ////
   /// Navegación
   ////
@@ -48,6 +55,11 @@ export const LoginScreen: React.FC = () => {
   /// Autenticación
   ////
   const { signIn } = useAuth();
+
+  ////
+  /// Tema
+  ////
+  const { theme } = useTheme();
 
   ////
   /// Manejador de login
@@ -86,53 +98,126 @@ export const LoginScreen: React.FC = () => {
   /// Renderizado
   ////
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background.primary }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.content}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>ChatNear</Text>
-          <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+          <Text style={[styles.title, { color: theme.action.primary }]}>
+            ChatNear
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
+            Inicia sesión para continuar
+          </Text>
         </View>
 
         <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            editable={!loading}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!loading}
-          />
+          {/* Email Input */}
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="mail-outline"
+              size={20}
+              color={theme.icon.secondary}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.background.secondary,
+                  color: theme.text.primary,
+                },
+              ]}
+              placeholder="Email"
+              placeholderTextColor={theme.text.tertiary}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              editable={!loading}
+            />
+          </View>
+
+          {/* Password Input */}
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color={theme.icon.secondary}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.background.secondary,
+                  color: theme.text.primary,
+                },
+              ]}
+              placeholder="Contraseña"
+              placeholderTextColor={theme.text.tertiary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              editable={!loading}
+            />
+            <TouchableOpacity
+              style={styles.passwordToggle}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color={theme.icon.secondary}
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              { backgroundColor: theme.action.primary },
+              loading && { backgroundColor: theme.action.disabled },
+            ]}
             onPress={handleLogin}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>
-              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-            </Text>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <Ionicons
+                  name="sync"
+                  size={24}
+                  color={theme.text.inverse}
+                  style={styles.loadingIcon}
+                />
+                <Text
+                  style={[styles.buttonText, { color: theme.text.inverse }]}
+                >
+                  Iniciando sesión...
+                </Text>
+              </View>
+            ) : (
+              <Text style={[styles.buttonText, { color: theme.text.inverse }]}>
+                Iniciar Sesión
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>¿No tienes una cuenta?</Text>
+          <Text style={[styles.footerText, { color: theme.text.secondary }]}>
+            ¿No tienes una cuenta?
+          </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate("Register")}
             disabled={loading}
           >
-            <Text style={styles.footerLink}>Regístrate</Text>
+            <Text style={[styles.footerLink, { color: theme.action.primary }]}>
+              Regístrate
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -143,7 +228,6 @@ export const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
@@ -157,34 +241,54 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#007AFF",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
   },
   form: {
     marginBottom: 20,
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  inputIcon: {
+    position: "absolute",
+    left: 16,
+    zIndex: 1,
+  },
   input: {
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    flex: 1,
+    paddingVertical: 15,
+    paddingLeft: 48,
+    paddingRight: 16,
     fontSize: 16,
+    borderRadius: 12,
+  },
+  passwordToggle: {
+    position: "absolute",
+    right: 16,
+    padding: 4,
   },
   button: {
-    backgroundColor: "#007AFF",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
+    marginTop: 8,
   },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingIcon: {
+    marginRight: 8,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -194,11 +298,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footerText: {
-    color: "#666",
     marginRight: 5,
   },
   footerLink: {
-    color: "#007AFF",
     fontWeight: "600",
   },
 });

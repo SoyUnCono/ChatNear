@@ -15,7 +15,9 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../navigation/types";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import { AvatarPicker } from "../../components/AvatarPicker";
+import { Ionicons } from "@expo/vector-icons";
 
 ////
 /// Tipos
@@ -27,41 +29,28 @@ type NavigationProp = NativeStackNavigationProp<AuthStackParamList, "Register">;
 ////
 export const RegisterScreen: React.FC = () => {
   ////
-  /// Input del Email
+  /// Estados
   ////
   const [email, setEmail] = useState("");
-
-  /// Input de la contraseña
-  ////
   const [password, setPassword] = useState("");
-
-  /// Input del nombre de usuario
-  ////
   const [username, setUsername] = useState("");
-
-  /// Estado del avatar
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
-
-  /// Estado del loading
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   ////
-  /// Navegación
+  /// Hooks
   ////
   const navigation = useNavigation<NavigationProp>();
-
-  ////
-  /// Autenticación
-  ////
   const { signUp } = useAuth();
+  const { theme } = useTheme();
 
   ////
   /// Manejador de registro
   ////
   const handleRegister = async () => {
     ////
-    /// Validar que los campos no estén vacíos
-    /// y si lo estan, mostrar un alert con un mensaje de error
+    /// Validar campos
     ////
     if (!email || !password || !username) {
       Alert.alert("Error", "Por favor completa todos los campos");
@@ -69,17 +58,14 @@ export const RegisterScreen: React.FC = () => {
     }
 
     ////
-    /// Indicar que se está realizando una operación
-    /// de carga.
+    /// Activar loading
     ////
     setLoading(true);
 
-    ////
-    /// Iniciar el registro, manejar el error y finalizar la carga
-    /// de la operación. En caso de éxito, navegar a la pantalla de inicio.
-    /// En caso de error, mostrar un alert con un mensaje de error.
-    ////
     try {
+      ////
+      /// Intentar registro
+      ////
       await signUp({
         email,
         password,
@@ -87,11 +73,17 @@ export const RegisterScreen: React.FC = () => {
         avatarUri: avatarUri || undefined,
       });
     } catch (error) {
+      ////
+      /// Manejar error
+      ////
       Alert.alert(
         "Error",
         error instanceof Error ? error.message : "Error al registrarse"
       );
     } finally {
+      ////
+      /// Desactivar loading
+      ////
       setLoading(false);
     }
   };
@@ -100,64 +92,158 @@ export const RegisterScreen: React.FC = () => {
   /// Renderizado
   ////
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background.primary }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.content}
       >
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <Text style={styles.title}>ChatNear</Text>
-            <Text style={styles.subtitle}>Crea tu cuenta</Text>
+            <Text style={[styles.title, { color: theme.action.primary }]}>
+              ChatNear
+            </Text>
+            <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
+              Crea tu cuenta
+            </Text>
           </View>
 
           <AvatarPicker imageUri={avatarUri} onImageSelected={setAvatarUri} />
 
           <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre de usuario"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              editable={!loading}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Contraseña"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!loading}
-            />
+            {/* Username Input */}
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={theme.icon.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.background.secondary,
+                    color: theme.text.primary,
+                  },
+                ]}
+                placeholder="Nombre de usuario"
+                placeholderTextColor={theme.text.tertiary}
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+            </View>
+
+            {/* Email Input */}
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={theme.icon.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.background.secondary,
+                    color: theme.text.primary,
+                  },
+                ]}
+                placeholder="Email"
+                placeholderTextColor={theme.text.tertiary}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!loading}
+              />
+            </View>
+
+            {/* Password Input */}
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={theme.icon.secondary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.background.secondary,
+                    color: theme.text.primary,
+                  },
+                ]}
+                placeholder="Contraseña"
+                placeholderTextColor={theme.text.tertiary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.passwordToggle}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={theme.icon.secondary}
+                />
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
+              style={[
+                styles.button,
+                { backgroundColor: theme.action.primary },
+                loading && { backgroundColor: theme.action.disabled },
+              ]}
               onPress={handleRegister}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>
-                {loading ? "Registrando..." : "Registrarse"}
-              </Text>
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <Ionicons
+                    name="sync"
+                    size={24}
+                    color={theme.text.inverse}
+                    style={styles.loadingIcon}
+                  />
+                  <Text
+                    style={[styles.buttonText, { color: theme.text.inverse }]}
+                  >
+                    Registrando...
+                  </Text>
+                </View>
+              ) : (
+                <Text
+                  style={[styles.buttonText, { color: theme.text.inverse }]}
+                >
+                  Registrarse
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>¿Ya tienes una cuenta?</Text>
+            <Text style={[styles.footerText, { color: theme.text.secondary }]}>
+              ¿Ya tienes una cuenta?
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate("Login")}
               disabled={loading}
             >
-              <Text style={styles.footerLink}>Inicia sesión</Text>
+              <Text
+                style={[styles.footerLink, { color: theme.action.primary }]}
+              >
+                Inicia sesión
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -166,10 +252,12 @@ export const RegisterScreen: React.FC = () => {
   );
 };
 
+////
+/// Estilos
+////
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
@@ -183,34 +271,54 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#007AFF",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
   },
   form: {
     marginBottom: 20,
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  inputIcon: {
+    position: "absolute",
+    left: 16,
+    zIndex: 1,
+  },
   input: {
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    flex: 1,
+    paddingVertical: 15,
+    paddingLeft: 48,
+    paddingRight: 16,
     fontSize: 16,
+    borderRadius: 12,
+  },
+  passwordToggle: {
+    position: "absolute",
+    right: 16,
+    padding: 4,
   },
   button: {
-    backgroundColor: "#007AFF",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
+    marginTop: 8,
   },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingIcon: {
+    marginRight: 8,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -221,11 +329,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   footerText: {
-    color: "#666",
     marginRight: 5,
   },
   footerLink: {
-    color: "#007AFF",
     fontWeight: "600",
   },
 });

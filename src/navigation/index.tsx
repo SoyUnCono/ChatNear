@@ -6,6 +6,7 @@ import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegisterScreen } from "../screens/auth/RegisterScreen";
 import { useAuth } from "../contexts/AuthContext";
 import { ActivityIndicator, View } from "react-native";
+import { Header } from "../components/Header";
 
 // TODO: ==> Importaremos las pantallas más adelante
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,7 +35,7 @@ const AppNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false,
+        header: () => <Header />,
         animation: "slide_from_right",
       }}
     >
@@ -44,6 +45,8 @@ const AppNavigator = () => {
       <Stack.Screen name="Favorites" component={() => null} />
       <Stack.Screen name="Settings" component={() => null} />
       <Stack.Screen name="RandomChat" component={() => null} />
+      <Stack.Screen name="Notifications" component={() => null} />
+      <Stack.Screen name="ChatList" component={() => null} />
     </Stack.Navigator>
   );
 };

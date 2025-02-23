@@ -3,14 +3,10 @@
 ///
 export interface User {
   id: string;
-  created_at: string;
-  username: string;
-  avatar_url?: string;
+  name: string | null;
+  avatar_url: string | null;
   status: "online" | "offline";
-  last_seen?: string;
-  bio?: string;
-  is_premium?: boolean;
-  is_incognito?: boolean;
+  last_seen: string | null;
 }
 
 ///
@@ -19,11 +15,10 @@ export interface User {
 export interface Chat {
   id: string;
   created_at: string;
-  participants: string[];
-  last_message?: string;
-  last_message_at?: string;
+  otherUser: User;
+  lastMessage?: Message;
+  unreadCount: number;
   is_anonymous: boolean;
-  is_pinned?: boolean;
 }
 
 ///
@@ -31,11 +26,11 @@ export interface Chat {
 ///
 export interface Message {
   id: string;
+  text: string;
+  timestamp: string;
+  sender_id: string;
   chat_id: string;
-  user_id: string;
-  content: string;
-  created_at: string;
-  read_at?: string;
+  read: boolean;
 }
 
 ///

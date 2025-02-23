@@ -19,10 +19,25 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 /// Crear el cliente de Supabase
 ///
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  ///
+  /// Configuración del cliente de Supabase
+  ///
   auth: {
+    ///
+    /// Almacenar el token en el almacenamiento local
+    ///
     storage: AsyncStorage,
+    ///
+    /// Refrescar el token automáticamente
+    ///
     autoRefreshToken: true,
+    ///
+    /// Mantener la sesión
+    ///
     persistSession: true,
+    ///
+    /// Detectar la sesión en la URL
+    ///
     detectSessionInUrl: false,
   },
 });

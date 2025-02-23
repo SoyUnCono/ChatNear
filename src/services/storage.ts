@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { decode } from "base64-arraybuffer";
+import { SUPABASE_URL } from "@env";
 
 ////
 /// Storage
@@ -67,14 +68,12 @@ export const storage = {
       if (error) throw error;
 
       ////
-      /// Obtener la URL pública de la imagen
+      /// Construir la URL pública directamente
       ////
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(data.path);
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
 
       ////
-      /// Retornar la URL pública de la imagen
+      /// Retornar la URL pública
       ////
       return publicUrl;
     } catch (error) {
@@ -87,6 +86,47 @@ export const storage = {
       /// Retornar null
       ////
       return null;
+    }
+  },
+
+  /**
+   * Actualiza el avatar del usuario
+   */
+  updateUserAvatar: async (
+    userId: string,
+    avatarUrl: string
+  ): Promise<void> => {
+    try {
+      ////
+      /// Actualizar el avatar del usuario
+      ////
+      const { error } = await supabase
+        ////
+        /// Obtener la tabla de usuarios
+        ////
+        .from("profiles")
+        ////
+        /// Actualizar el avatar del usuario
+        ////
+        .update({ avatar_url: avatarUrl })
+        ////
+        /// Equivalente a WHERE id = userId
+        .eq("id", userId);
+
+      ////
+      /// Si hay un error, lanzar un error
+      ////
+      if (error) throw error;
+    } catch (error) {
+      ////
+      /// Imprimir el error
+      ////
+      console.error("Error updating avatar URL:", error);
+
+      ////
+      /// Lanzar el error
+      ////
+      throw error;
     }
   },
 

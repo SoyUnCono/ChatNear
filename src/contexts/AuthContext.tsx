@@ -215,11 +215,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   /// Valor del contexto
   ///
   const value = {
+    ///
+    /// Usuario actual
+    ///
     user,
+
+    ///
+    /// Estado de carga
+    ///
     loading,
+
+    ///
+    /// Iniciar sesión
+    ///
     signIn,
+
+    ///
+    /// Registrar un nuevo usuario
+    ///
     signUp,
+
+    ///
+    /// Cerrar sesión
+    ///
     signOut,
+
+    ///
+    /// Actualizar el perfil del usuario
+    ///
     updateProfile,
   };
 
