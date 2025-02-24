@@ -32,7 +32,7 @@ export const RandomChatButton: React.FC = () => {
     ////
     /// Navegar al chat aleatorio
     ////
-    navigation.navigate("RandomChat");
+    navigation.navigate("Chat", { chatId: "random" });
   };
 
   ////

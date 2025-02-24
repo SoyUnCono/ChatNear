@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, FlatList, Text } from "react-native";
+import { View, StyleSheet, FlatList, Text, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -47,7 +47,10 @@ export const HomeScreen: React.FC = () => {
           data={chats}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ChatListItem chat={item} />}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: Platform.OS === "ios" ? 100 : 80 },
+          ]}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
               <Ionicons

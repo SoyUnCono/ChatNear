@@ -6,6 +6,7 @@ import {
   Image,
   Platform,
   StatusBar,
+  Text,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -16,6 +17,7 @@ import { RootStackParamList } from "../../navigation/types";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ProfileMenu } from "../ProfileMenu/ProfileMenu";
+import { NavigationMenu } from "../NavigationMenu/index";
 
 ////
 /// Tipos
@@ -49,37 +51,12 @@ export const Header: React.FC = () => {
   ////
   /// Estado del menú
   ////
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isProfileMenuVisible, setIsProfileMenuVisible] = useState(false);
 
-  ////
-  /// Manejar el clic en el perfil
-  ////
-  const handleProfilePress = () => {
-    ////
-    /// Mostrar el menú
-    ////
-    setIsMenuVisible(true);
-  };
-
-  ////
-  /// Manejar el clic en el chat aleatorio
-  ////
-  const handleRandomChatPress = () => {
-    ////
-    /// Navegar al chat aleatorio
-    ////
-    navigation.navigate("RandomChat");
-  };
-
-  ////
-  /// Manejar el clic en las notificaciones
-  ////
-  const handleNotificationsPress = () => {
-    ////
-    /// Navegar a las notificaciones
-    ////
-    navigation.navigate("Notifications");
-  };
+  ///
+  /// Estado del menú de navegación
+  ///
+  const [isNavigationMenuVisible, setIsNavigationMenuVisible] = useState(false);
 
   ////
   /// Renderizado
@@ -103,79 +80,56 @@ export const Header: React.FC = () => {
             },
           ]}
         >
-          {/* Avatar del usuario */}
+          {/* Sección izquierda: Avatar y nombre de usuario */}
           <TouchableOpacity
-            onPress={handleProfilePress}
-            style={styles.avatarContainer}
+            onPress={() => setIsProfileMenuVisible(true)}
+            style={styles.leftSection}
           >
-            {/* Avatar del usuario */}
-            {user?.avatar_url ? (
-              <Image
-                source={{ uri: user.avatar_url }}
-                style={styles.avatar}
-                defaultSource={require("../../assets/default-avatar.png")}
-              />
-            ) : (
-              <View
-                style={[
-                  styles.avatar,
-                  styles.placeholderAvatar,
-                  {
-                    backgroundColor: HeaderColors.background,
-                    borderColor: HeaderColors.border,
-                  },
-                ]}
-              >
-                <Ionicons name="person" size={24} color={HeaderColors.icon} />
-              </View>
-            )}
-            {/* Indicador de estado online */}
-            {user?.status === "online" && (
-              <View
-                style={[
-                  styles.onlineIndicator,
-                  {
-                    backgroundColor: HeaderColors.online,
-                    borderColor: HeaderColors.background,
-                  },
-                ]}
-              />
-            )}
+            <View style={styles.avatarContainer}>
+              {user?.avatar_url ? (
+                <Image
+                  source={{ uri: user.avatar_url }}
+                  style={styles.avatar}
+                  defaultSource={require("../../assets/default-avatar.png")}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.avatar,
+                    styles.placeholderAvatar,
+                    {
+                      backgroundColor: HeaderColors.background,
+                      borderColor: HeaderColors.border,
+                    },
+                  ]}
+                >
+                  <Ionicons name="person" size={24} color={HeaderColors.icon} />
+                </View>
+              )}
+              {user?.status === "online" && (
+                <View
+                  style={[
+                    styles.onlineIndicator,
+                    {
+                      backgroundColor: HeaderColors.online,
+                      borderColor: HeaderColors.background,
+                    },
+                  ]}
+                />
+              )}
+            </View>
+            <Text style={[styles.username, { color: theme.text.secondary }]}>
+              {user?.name || "@" + user?.username || "Usuario"}
+            </Text>
           </TouchableOpacity>
 
-          {/* Botones de acción */}
+          {/* Sección derecha: Botones de acción */}
           <View style={styles.actionsContainer}>
-            {/* Notificaciones */}
             <TouchableOpacity
-              style={styles.iconButton}
-              onPress={handleNotificationsPress}
+              style={[styles.menuButton]}
+              onPress={() => setIsNavigationMenuVisible(true)}
             >
-              {/* Icono de notificaciones */}
-              <Ionicons
-                name="notifications"
-                size={24}
-                color={HeaderColors.icon}
-              />
-              {/* Indicador de notificaciones pendientes */}
-              <View
-                style={[
-                  styles.notificationBadge,
-                  { backgroundColor: HeaderColors.badge },
-                ]}
-              />
-            </TouchableOpacity>
-
-            {/* Chat Aleatorio */}
-            <TouchableOpacity
-              style={[
-                styles.iconButton,
-                styles.randomChatButton,
-                { backgroundColor: HeaderColors.icon },
-              ]}
-              onPress={handleRandomChatPress}
-            >
-              {/* Icono de chat aleatorio */}
-              <Ionicons name="add" size={26} color={HeaderColors.background} />
+              <Ionicons name="menu" size={24} color={theme.icon.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -183,8 +137,14 @@ export const Header: React.FC = () => {
 
       {/* Menú de perfil */}
       <ProfileMenu
-        visible={isMenuVisible}
-        onClose={() => setIsMenuVisible(false)}
+        visible={isProfileMenuVisible}
+        onClose={() => setIsProfileMenuVisible(false)}
+      />
+
+      {/* Menú de navegación */}
+      <NavigationMenu
+        visible={isNavigationMenuVisible}
+        onClose={() => setIsNavigationMenuVisible(false)}
       />
     </>
   );
@@ -205,14 +165,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderBottomWidth: 1,
   },
+  leftSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
   avatarContainer: {
     position: "relative",
-    padding: 4,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
   },
   placeholderAvatar: {
     justifyContent: "center",
@@ -223,31 +188,25 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 2,
     right: 2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     borderWidth: 2,
+  },
+  username: {
+    fontSize: 15,
+    marginLeft: 8,
+    fontWeight: "500",
   },
   actionsContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-  iconButton: {
+  menuButton: {
     width: 44,
     height: 44,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 12,
-  },
-  randomChatButton: {
     borderRadius: 22,
-  },
-  notificationBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
   },
 });

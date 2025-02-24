@@ -1,38 +1,38 @@
-// Colores base
+// Colores base de iOS
 const palette = {
-  // Azules
+  // Azules de iOS
   blue: {
     50: "#E3F2FD",
     100: "#BBDEFB",
     200: "#90CAF9",
     300: "#64B5F6",
     400: "#42A5F5",
-    500: "#2196F3", // Principal
-    600: "#1E88E5",
-    700: "#1976D2",
-    800: "#1565C0",
-    900: "#0D47A1",
+    500: "#007AFF", // iOS Blue
+    600: "#0062CC",
+    700: "#004999",
+    800: "#003166",
+    900: "#001833",
   },
-  // Grises
+  // Grises de iOS
   gray: {
-    50: "#FAFAFA",
-    100: "#F5F5F5",
-    200: "#EEEEEE",
-    300: "#E0E0E0",
-    400: "#BDBDBD",
-    500: "#9E9E9E",
-    600: "#757575",
-    700: "#616161",
-    800: "#424242",
-    900: "#212121",
+    50: "#F2F2F7", // iOS grouped background
+    100: "#E5E5EA",
+    200: "#D1D1D6",
+    300: "#C7C7CC",
+    400: "#AEAEB2",
+    500: "#8E8E93",
+    600: "#636366",
+    700: "#48484A",
+    800: "#3A3A3C",
+    900: "#2C2C2E",
   },
   // Estado
   status: {
-    online: "#4CAF50",
-    offline: "#9E9E9E",
-    error: "#F44336",
-    warning: "#FFC107",
-    success: "#4CAF50",
+    online: "#34C759", // iOS Green
+    offline: "#8E8E93", // iOS Gray
+    error: "#FF3B30", // iOS Red
+    warning: "#FF9500", // iOS Orange
+    success: "#34C759", // iOS Green
   },
   // Otros
   white: "#FFFFFF",
@@ -40,97 +40,97 @@ const palette = {
   transparent: "transparent",
 };
 
-// Tema claro
+// Tema claro de iOS
 export const lightTheme = {
   // Colores de fondo
   background: {
-    primary: palette.white,
-    secondary: palette.gray[50],
-    tertiary: palette.gray[100],
+    primary: "#FFFFFF",
+    secondary: "#F8F8FA", // Un blanco ligeramente más oscuro
+    tertiary: "#FFFFFF",
   },
   // Colores de texto
   text: {
-    primary: palette.gray[900],
-    secondary: palette.gray[700],
-    tertiary: palette.gray[500],
-    inverse: palette.white,
+    primary: "#000000",
+    secondary: "#1A1A1A",
+    tertiary: "#4A4A4A",
+    inverse: "#FFFFFF",
   },
   // Colores de borde
   border: {
-    primary: palette.gray[200],
-    secondary: palette.gray[300],
+    primary: "#E5E5EA",
+    secondary: "#F2F2F7",
   },
   // Colores de acción
   action: {
-    primary: palette.blue[500],
-    secondary: palette.blue[700],
-    disabled: palette.gray[300],
+    primary: "#007AFF", // iOS Blue
+    secondary: "#42A5F5", // iOS Blue más claro
+    disabled: "#E3F2FD",
   },
   // Colores de estado
   status: {
-    online: palette.status.online,
-    offline: palette.status.offline,
-    error: palette.status.error,
-    warning: palette.status.warning,
-    success: palette.status.success,
+    online: "#34C759",
+    offline: "#8E8E93",
+    error: "#FF3B30",
+    warning: "#FF9500",
+    success: "#34C759",
   },
   // Colores de iconos
   icon: {
-    primary: palette.gray[800],
-    secondary: palette.gray[600],
-    inverse: palette.white,
+    primary: "#3C3C43CC", // iOS icon primary (0.8 opacity)
+    secondary: "#3C3C4399", // iOS icon secondary (0.6 opacity)
+    inverse: "#FFFFFF",
   },
   // Colores de notificación
   notification: {
-    badge: palette.status.error,
-    background: palette.white,
+    badge: "#FF3B30", // iOS Red
+    background: "#FFFFFF",
   },
 };
 
-// Tema oscuro
+// Tema oscuro de iOS
 export const darkTheme = {
   // Colores de fondo
   background: {
-    primary: palette.gray[900],
-    secondary: palette.gray[800],
-    tertiary: palette.gray[700],
+    primary: "#1A1A1A", // Negro más suave
+    secondary: "#242424", // Negro suave secundario
+    tertiary: "#2A2A2A", // Negro suave terciario
   },
   // Colores de texto
   text: {
-    primary: palette.white,
-    secondary: palette.gray[300],
-    tertiary: palette.gray[500],
-    inverse: palette.gray[900],
+    primary: "#FFFFFF",
+    secondary: "#F5F5F5",
+    tertiary: "#E0E0E0",
+    inverse: "#000000",
   },
   // Colores de borde
   border: {
-    primary: palette.gray[700],
-    secondary: palette.gray[600],
+    primary: "#2A2A2A",
+    secondary: "#323232",
   },
   // Colores de acción
   action: {
-    primary: palette.blue[400],
-    secondary: palette.blue[300],
-    disabled: palette.gray[700],
+    primary: "#007AFF", // iOS Blue
+    secondary: "#42A5F5", // iOS Blue más claro
+    disabled: "#3A3A3C",
   },
   // Colores de estado
   status: {
-    online: palette.status.online,
-    offline: palette.status.offline,
-    error: palette.status.error,
-    warning: palette.status.warning,
-    success: palette.status.success,
+    online: "#30D158",
+    offline: "#98989D",
+    error: "#FF453A",
+    warning: "#FF9F0A",
+    success: "#30D158",
   },
   // Colores de iconos
   icon: {
-    primary: palette.gray[200],
-    secondary: palette.gray[400],
-    inverse: palette.gray[900],
+    primary: "#FFFFFFCC", // iOS icon primary (0.8 opacity)
+    secondary: "#FFFFFF99", // iOS icon secondary (0.6 opacity)
+    inverse: "#000000",
   },
   // Colores de notificación
   notification: {
-    badge: palette.status.error,
-    background: palette.gray[800],
+    badge: "#FF453A", // iOS Dark Mode Red
+    background: "#1C1C1E",
   },
 };
 

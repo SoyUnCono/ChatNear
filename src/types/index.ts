@@ -4,6 +4,7 @@
 export interface User {
   id: string;
   name: string | null;
+  username: string | null;
   avatar_url: string | null;
   status: "online" | "offline";
   last_seen: string | null;

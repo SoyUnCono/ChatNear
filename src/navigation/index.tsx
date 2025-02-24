@@ -4,17 +4,20 @@ import { RootStackParamList, AuthStackParamList } from "./types";
 import { HomeScreen } from "../screens/HomeScreen";
 import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegisterScreen } from "../screens/auth/RegisterScreen";
+import { FavoritesScreen } from "../screens/FavoritesScreen";
+import { SettingsScreen } from "../screens/SettingsScreen";
+import { ChatScreen } from "../screens/ChatScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
+import { NotificationSettings } from "../screens/settings/NotificationSettings";
 import { useAuth } from "../contexts/AuthContext";
 import { ActivityIndicator, View } from "react-native";
 import { Header } from "../components/Header";
+import { NavigationMenu } from "../components/NavigationMenu";
+import React from "react";
 
-// TODO: ==> Importaremos las pantallas más adelante
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
-////
-/// Navegador de autenticación
-////
 const AuthNavigator = () => {
   return (
     <AuthStack.Navigator
@@ -28,41 +31,37 @@ const AuthNavigator = () => {
   );
 };
 
-////
-/// Navegador de la aplicación
-////
-const AppNavigator = () => {
+const MainNavigator = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        header: () => <Header />,
-        animation: "slide_from_right",
-      }}
-    >
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Chat" component={() => null} />
-      <Stack.Screen name="Profile" component={() => null} />
-      <Stack.Screen name="Favorites" component={() => null} />
-      <Stack.Screen name="Settings" component={() => null} />
-      <Stack.Screen name="RandomChat" component={() => null} />
-      <Stack.Screen name="Notifications" component={() => null} />
-      <Stack.Screen name="ChatList" component={() => null} />
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator
+        screenOptions={{
+          header: () => <Header />,
+        }}
+      >
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="DMs" component={HomeScreen} />
+        <Stack.Screen name="Favorites" component={FavoritesScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen
+          name="NotificationSettings"
+          component={NotificationSettings}
+        />
+        <Stack.Screen name="PrivacySettings" component={() => <View />} />
+        <Stack.Screen name="SecuritySettings" component={() => <View />} />
+        <Stack.Screen name="AboutSettings" component={() => <View />} />
+        <Stack.Screen name="HelpSettings" component={() => <View />} />
+      </Stack.Navigator>
+      <NavigationMenu />
+    </>
   );
 };
 
-////
-/// Navegación
-////
 export function Navigation() {
-  ////
-  /// Obtener el usuario y el estado de carga
-  ////
   const { user, loading } = useAuth();
 
-  ////
-  /// Si el usuario está cargando, mostrar un indicador de carga
-  ////
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -71,12 +70,9 @@ export function Navigation() {
     );
   }
 
-  ////
-  /// Si el usuario no está autenticado, mostrar el navegador de autenticación
-  ////
   return (
     <NavigationContainer>
-      {user ? <AppNavigator /> : <AuthNavigator />}
+      {user ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
