@@ -1,16 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "../contexts/ThemeContext";
-import { RouteProp, useRoute } from "@react-navigation/native";
-import { MainStackParamList } from "../navigation/types";
+import { useTheme } from "../../../contexts/ThemeContext";
 
-type ProfileScreenRouteProp = RouteProp<MainStackParamList, "Profile">;
-
-export const ProfileScreen: React.FC = () => {
+export const ChangePassword: React.FC = () => {
   const { theme } = useTheme();
-  const route = useRoute<ProfileScreenRouteProp>();
-  const { userId } = route.params;
 
   return (
     <SafeAreaView
@@ -18,10 +12,10 @@ export const ProfileScreen: React.FC = () => {
     >
       <View style={styles.content}>
         <Text style={[styles.title, { color: theme.text.primary }]}>
-          Perfil de Usuario
+          Cambiar Contraseña
         </Text>
         <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
-          ID: {userId}
+          Actualiza tu contraseña de acceso
         </Text>
       </View>
     </SafeAreaView>

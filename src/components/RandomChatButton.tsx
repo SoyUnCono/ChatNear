@@ -1,39 +1,46 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/types";
 import { useTheme } from "../contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 
 ////
 /// Tipos
 ////
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+interface RandomChatButtonProps {
+  ///
+  /// Texto del botón
+  ///
+  label: string;
+
+  ///
+  /// Evento: Presionar
+  ///
+  onPress: () => void;
+
+  ///
+  /// Variante del botón
+  ///
+  variant?: "primary" | "secondary";
+
+  ///
+  /// Deshabilitado
+  ///
+  disabled?: boolean;
+}
 
 ////
 /// Componente : Botón para iniciar un chat aleatorio
 ////
-export const RandomChatButton: React.FC = () => {
-  ////
-  /// Navegación
-  ////
-  const navigation = useNavigation<NavigationProp>();
-
+export const RandomChatButton: React.FC<RandomChatButtonProps> = ({
+  label,
+  onPress,
+  variant = "primary",
+  disabled = false,
+}) => {
   ////
   /// Tema
   ///
   const { theme } = useTheme();
-
-  ////
-  /// Evento : Iniciar chat aleatorio
-  ////
-  const handlePress = () => {
-    ////
-    /// Navegar al chat aleatorio
-    ////
-    navigation.navigate("Chat", { chatId: "random" });
-  };
 
   ////
   /// Renderizado
@@ -43,25 +50,42 @@ export const RandomChatButton: React.FC = () => {
       style={[
         styles.button,
         {
-          backgroundColor: theme.action.primary,
+          backgroundColor:
+            variant === "primary" ? theme.action.primary : "transparent",
+          borderWidth: variant === "secondary" ? 1 : 0,
+          borderColor: "white",
+          opacity: disabled ? 0.5 : 1,
           ...Platform.select({
             ios: {
               shadowColor: theme.action.primary,
               shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
+              shadowOpacity: variant === "primary" ? 0.3 : 0,
               shadowRadius: 8,
             },
             android: {
-              elevation: 8,
+              elevation: variant === "primary" ? 8 : 0,
             },
           }),
         },
       ]}
-      onPress={handlePress}
+      onPress={onPress}
       activeOpacity={0.8}
+      disabled={disabled}
     >
-      <Ionicons name="people" size={24} color="white" style={styles.icon} />
-      <Text style={styles.text}>Nuevo Chat</Text>
+      <Ionicons
+        name="people"
+        size={24}
+        color={variant === "primary" ? "white" : theme.action.primary}
+        style={styles.icon}
+      />
+      <Text
+        style={[
+          styles.text,
+          { color: variant === "primary" ? "white" : theme.action.primary },
+        ]}
+      >
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -86,7 +110,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   text: {
-    color: "white",
     fontSize: 16,
     fontWeight: "600",
   },

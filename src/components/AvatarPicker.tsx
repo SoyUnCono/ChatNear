@@ -57,10 +57,6 @@ export const AvatarPicker: React.FC<Props> = ({
           "Permiso denegado",
           "Necesitamos acceso a tu galería para seleccionar una foto de perfil"
         );
-
-        ////
-        /// Retornar
-        ///
         return;
       }
 
@@ -76,69 +72,78 @@ export const AvatarPicker: React.FC<Props> = ({
             text: "Elegir foto",
             style: "default",
             onPress: async () => {
-              ////
-              /// Elegir foto
-              ///
-              const result = await ImagePicker.launchImageLibraryAsync({
-                ///
-                /// Tipos de medios
-                ///
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-
-                ///
-                /// Permitir edición
-                ///
-                allowsEditing: true,
-
-                ///
-                /// Aspecto
-                ///
-                aspect: [1, 1],
-
-                ///
-                /// Calidad
-                ///
-                quality: 0.5,
-
-                ///
-                /// Presentación
-                ///
-                presentationStyle:
-                  ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
-
-                ///
-                /// Base64
-                ///
-                base64: false,
-
-                ///
-                /// Exif
-                ///
-                exif: false,
-
-                
-              });
-
-              ////
-              /// Si no se ha cancelado y hay una imagen
-              ///
-              if (!result.canceled && result.assets[0].uri) {
+              try {
                 ////
-                /// Seleccionar la imagen
+                /// Elegir foto
                 ///
-                onImageSelected(result.assets[0].uri);
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  ///
+                  /// Tipos de medios
+                  ///
+                  mediaTypes: "images" as ImagePicker.MediaTypeOptions,
+
+                  ///
+                  /// Permitir edición
+                  ///
+                  allowsEditing: true,
+
+                  ///
+                  /// Aspecto
+                  ///
+                  aspect: [1, 1],
+
+                  ///
+                  /// Calidad
+                  ///
+                  quality: 0.8,
+
+                  ///
+                  /// Asegurar que la imagen no sea demasiado grande
+                  ///
+                  exif: false,
+                });
+
+                ////
+                /// Si no se ha cancelado y hay una imagen
+                ///
+                if (!result.canceled && result.assets[0]) {
+                  const imageUri = result.assets[0].uri;
+
+                  // Verificar el tamaño del archivo
+                  const response = await fetch(imageUri);
+                  const blob = await response.blob();
+                  const fileSize = blob.size;
+                  const maxSize = 5 * 1024 * 1024; // 5MB
+
+                  if (fileSize > maxSize) {
+                    Alert.alert(
+                      "Error",
+                      "La imagen es demasiado grande. Por favor selecciona una imagen más pequeña (máximo 5MB)."
+                    );
+                    return;
+                  }
+
+                  ////
+                  /// Seleccionar la imagen
+                  ///
+                  onImageSelected(imageUri);
+                }
+              } catch (error) {
+                console.error("Error al seleccionar imagen:", error);
+                Alert.alert(
+                  "Error",
+                  "No se pudo seleccionar la imagen. Por favor, intenta de nuevo."
+                );
               }
             },
           },
         ]
       );
     } catch (error) {
-      ////
-      /// Mostrar un mensaje de error
-      ///
+      console.error("Error al acceder a la galería:", error);
       Alert.alert(
         "Error",
-        "No se pudo seleccionar la imagen. Por favor, intenta de nuevo."
+        "No se pudo acceder a la galería. Por favor, intenta de nuevo."
       );
     }
   };

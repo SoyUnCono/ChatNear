@@ -1,15 +1,15 @@
 import React from "react";
 import { ScrollView, StyleSheet, StatusBar, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "../contexts/ThemeContext";
-import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { MainStackParamList } from "../navigation/types";
-import { Section } from "./settings/components/Section";
-import { SwitchItem } from "./settings/components/SwitchItem";
-import { DistanceSlider } from "./settings/components/DistanceSlider";
-import { useChatSettings } from "./settings/hooks/useChatSettings";
+import { MainStackParamList } from "../../navigation/types";
+import { Section } from "./components/Section";
+import { SwitchItem } from "./components/SwitchItem";
+import { DistanceSlider } from "./components/DistanceSlider";
+import { useChatSettings } from "./hooks/useChatSettings";
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -104,12 +104,12 @@ export const SettingsScreen: React.FC = () => {
             icon="key-outline"
             isLink
           />
-          <SwitchItem
+          {/* <SwitchItem
             title="Verificación en dos pasos"
-            onPress={() => navigation.navigate("TwoFactorAuth")}
+            onPress={() => navigation.navigate("")}
             icon="lock-closed-outline"
             isLink
-          />
+          /> */}
         </Section>
 
         {/* Notificaciones y Privacidad */}
@@ -137,7 +137,7 @@ export const SettingsScreen: React.FC = () => {
           />
         </Section>
 
-        {/* Información y Ayuda */}
+        {/* Información y Ayuda
         <Section title="INFORMACIÓN Y AYUDA">
           <SwitchItem
             title="Acerca de"
@@ -151,7 +151,7 @@ export const SettingsScreen: React.FC = () => {
             icon="help-circle-outline"
             isLink
           />
-        </Section>
+        </Section> */}
 
         {/* Sesión */}
         <Section title="SESIÓN">

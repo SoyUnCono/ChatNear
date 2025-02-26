@@ -53,6 +53,11 @@ interface SwitchItemProps {
   /// Texto color
   ///
   textColor?: string;
+
+  ///
+  /// Deshabilitado
+  ///
+  disabled?: boolean;
 }
 
 ////
@@ -98,6 +103,11 @@ export const SwitchItem: React.FC<SwitchItemProps> = ({
   /// Texto color
   ///
   textColor,
+
+  ///
+  /// Deshabilitado
+  ///
+  disabled = false,
 }) => {
   ///
   /// Tema
@@ -149,6 +159,7 @@ export const SwitchItem: React.FC<SwitchItemProps> = ({
               android: value ? theme.action.primary : "#f4f3f4",
             })}
             ios_backgroundColor="#e9e9ea"
+            disabled={disabled}
           />
         )
       )}
@@ -161,6 +172,7 @@ export const SwitchItem: React.FC<SwitchItemProps> = ({
   const containerStyle = [
     styles.item,
     { borderBottomColor: theme.border.primary },
+    disabled && { opacity: 0.6 },
   ];
 
   return onPress ? (

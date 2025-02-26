@@ -1,16 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "../contexts/ThemeContext";
-import { RouteProp, useRoute } from "@react-navigation/native";
-import { MainStackParamList } from "../navigation/types";
+import { useTheme } from "../../contexts/ThemeContext";
 
-type ChatScreenRouteProp = RouteProp<MainStackParamList, "Chat">;
-
-export const ChatScreen: React.FC = () => {
+export const FavoritesScreen: React.FC = () => {
   const { theme } = useTheme();
-  const route = useRoute<ChatScreenRouteProp>();
-  const { chatId } = route.params;
 
   return (
     <SafeAreaView
@@ -18,10 +12,10 @@ export const ChatScreen: React.FC = () => {
     >
       <View style={styles.content}>
         <Text style={[styles.title, { color: theme.text.primary }]}>
-          Chat ID: {chatId}
+          Favoritos
         </Text>
         <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
-          Aquí irá la implementación del chat
+          Aquí encontrarás tus chats favoritos
         </Text>
       </View>
     </SafeAreaView>

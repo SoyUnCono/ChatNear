@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "../../../contexts/ThemeContext";
 
-export const FavoritesScreen: React.FC = () => {
+export const LanguageSettings: React.FC = () => {
   const { theme } = useTheme();
 
   return (
@@ -12,10 +12,10 @@ export const FavoritesScreen: React.FC = () => {
     >
       <View style={styles.content}>
         <Text style={[styles.title, { color: theme.text.primary }]}>
-          Favoritos
+          Idioma
         </Text>
         <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
-          Aquí encontrarás tus chats favoritos
+          Configura el idioma de la aplicación
         </Text>
       </View>
     </SafeAreaView>

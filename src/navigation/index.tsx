@@ -1,23 +1,42 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList, AuthStackParamList } from "./types";
-import { HomeScreen } from "../screens/HomeScreen";
+import { HomeScreen } from "../screens/home/HomeScreen";
 import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegisterScreen } from "../screens/auth/RegisterScreen";
-import { FavoritesScreen } from "../screens/FavoritesScreen";
-import { SettingsScreen } from "../screens/SettingsScreen";
-import { ChatScreen } from "../screens/ChatScreen";
-import { ProfileScreen } from "../screens/ProfileScreen";
-import { NotificationSettings } from "../screens/settings/NotificationSettings";
+import { FavoritesScreen } from "../screens/favorite/FavoritesScreen";
+import { SettingsScreen } from "../screens/settings/SettingsScreen";
+import { ChatScreen } from "../screens/chat/ChatScreen";
+import { ProfileScreen } from "../screens/profile/ProfileScreen";
+import { NotificationSettings } from "../screens/settings/pages/notification/index";
+import { PrivacySettings } from "../screens/settings/pages/PrivacySettings";
+import { SecuritySettings } from "../screens/settings/pages/SecuritySettings";
+import { LanguageSettings } from "../screens/settings/pages/LanguageSettings";
+import { RegionSettings } from "../screens/settings/pages/RegionSettings";
+import { EditProfile } from "../screens/settings/pages/EditProfile";
+import { ChangePassword } from "../screens/settings/pages/ChangePassword";
 import { useAuth } from "../contexts/AuthContext";
 import { ActivityIndicator, View } from "react-native";
 import { Header } from "../components/Header";
-import { NavigationMenu } from "../components/NavigationMenu";
+import { NavigationMenu } from "../components/NavigationMenu/index";
+import { RandomChatProvider } from "../contexts/RandomChatContext";
 import React from "react";
+import { useNotificationResponse } from "../hooks/useNotificationResponse";
+import * as Notifications from "expo-notifications";
 
+////
+/// Stack de navegación
+////
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+////
+/// Stack de navegación de autenticación
+////
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
+////
+/// Navegador de autenticación
+////
 const AuthNavigator = () => {
   return (
     <AuthStack.Navigator
@@ -31,6 +50,9 @@ const AuthNavigator = () => {
   );
 };
 
+////
+/// Navegador principal
+////
 const MainNavigator = () => {
   return (
     <>
@@ -49,19 +71,46 @@ const MainNavigator = () => {
           name="NotificationSettings"
           component={NotificationSettings}
         />
-        <Stack.Screen name="PrivacySettings" component={() => <View />} />
-        <Stack.Screen name="SecuritySettings" component={() => <View />} />
-        <Stack.Screen name="AboutSettings" component={() => <View />} />
-        <Stack.Screen name="HelpSettings" component={() => <View />} />
+        <Stack.Screen name="PrivacySettings" component={PrivacySettings} />
+        <Stack.Screen name="SecuritySettings" component={SecuritySettings} />
+        <Stack.Screen name="LanguageSettings" component={LanguageSettings} />
+        <Stack.Screen name="RegionSettings" component={RegionSettings} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
       </Stack.Navigator>
-      <NavigationMenu />
+      <NavigationMenu visible={false} onClose={() => {}} />
     </>
   );
 };
 
+// Configurar el comportamiento por defecto de las notificaciones
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
+// Componente que maneja las notificaciones
+const NotificationHandler: React.FC = () => {
+  useNotificationResponse();
+  return null;
+};
+
+////
+/// Navegación
+////
 export function Navigation() {
+  ///
+  /// Estado: Usuario & Cargando
+  ///
   const { user, loading } = useAuth();
 
+  ///
+  /// Si está cargando los datos del usuario o no hay usuario, mostrar un
+  /// indicador de carga
+  ///
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -70,9 +119,15 @@ export function Navigation() {
     );
   }
 
+  ///
+  /// Renderizado
+  ///
   return (
     <NavigationContainer>
-      {user ? <MainNavigator /> : <AuthNavigator />}
+      <NotificationHandler />
+      <RandomChatProvider>
+        {user ? <MainNavigator /> : <AuthNavigator />}
+      </RandomChatProvider>
     </NavigationContainer>
   );
 }

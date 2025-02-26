@@ -64,7 +64,12 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = ({
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Ionicons name="chevron-back" size={24} color={theme.action.primary} />
+        <Ionicons
+          name="chevron-back"
+          size={24}
+          style={{ marginRight: 23 }}
+          color={theme.action.primary}
+        />
         <Text style={[styles.backText, { color: theme.action.primary }]}>
           {backTitle}
         </Text>

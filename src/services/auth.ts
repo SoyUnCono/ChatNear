@@ -94,10 +94,18 @@ export const auth = {
    * Registra un nuevo usuario
    */
   signUp: async ({
+    ///
+    /// Email
+    ///
     email,
+    ///
+    /// Contraseña
+    ///
     password,
+    ///
+    /// Nombre de usuario
+    ///
     username,
-    avatarUri,
   }: SignUpData): Promise<AuthResponse> => {
     try {
       ////
@@ -139,7 +147,13 @@ export const auth = {
       ///
       if (!authData.user)
         return {
+          ///
+          /// Usuario
+          ///
           user: null,
+          ///
+          /// Error
+          ///
           error: { message: "No se pudo crear el usuario" },
         };
 
@@ -156,12 +170,18 @@ export const auth = {
       ////
       /// Si hay un avatar, lo subimos
       ////
-      if (avatarUri) {
+      if (avatarUrl) {
         ////
         /// Subir el avatar
         ////
         avatarUrl = await storage.uploadImage(
-          avatarUri,
+          ///
+          /// URL del avatar
+          ///
+          avatarUrl,
+          ///
+          /// Ruta del avatar
+          ///
           `${authData.user.id}/avatar.png`
         );
 
@@ -181,7 +201,13 @@ export const auth = {
             /// Actualizar el perfil del usuario
             ////
             .update({
+              ///
+              /// URL del avatar
+              ///
               avatar_url: avatarUrl,
+              ///
+              /// Estado
+              ///
               status: "online",
             })
             ////
@@ -261,28 +287,55 @@ export const auth = {
       ////
       if (error) return { user: null, error: { message: error.message } };
 
-      // Actualizamos el estado a online
+      ////
+      /// Actualizamos el estado a online
+      ////
       await supabase
+        ///
+        /// Obtener la tabla de usuarios
+        ///
         .from("profiles")
+        ///
+        /// Actualizar el estado a online
+        ///
         .update({ status: "online", last_seen: new Date().toISOString() })
+        ///
+        /// Equivalente a WHERE id = userId
+        ///
         .eq("id", data.user.id);
 
       ////
       /// Obtener el perfil del usuario
       ////
       const { data: profile } = await supabase
+        ///
+        /// Obtener la tabla de usuarios
+        ///
         .from("profiles")
+        ///
+        /// Seleccionar el usuario
+        ///
         .select("*")
-        .eq("id", data.user.id)
-        .single();
+        ///
+        /// Equivalente a WHERE id = userId
+        ///
+        .eq("id", data.user.id);
 
       ////
-      /// Retornar el perfil del usuario
+      /// Retornar el perfil del usuario, si existe, si no, retornar un error
       ////
-      return { user: profile, error: null };
+      return profile && profile[0]
+        ? { user: profile[0], error: null }
+        : { user: null, error: { message: "User profile not found" } };
     } catch (error) {
       return {
+        ///
+        /// Usuario
+        ///
         user: null,
+        ///
+        /// Error
+        ///
         error: {
           message:
             error instanceof Error ? error.message : "Error al iniciar sesión",
@@ -296,17 +349,44 @@ export const auth = {
    */
   signOut: async (): Promise<{ error: AuthError | null }> => {
     try {
-      // Primero actualizamos el estado a offline
+      ////
+      /// Primero actualizamos el estado a offline
+      ////
       const {
+        ///
+        /// Usuario
+        ///
         data: { user },
       } = await supabase.auth.getUser();
+
+      ////
+      /// Si hay un usuario, actualizamos el estado a offline
+      ////
       if (user) {
+        ////
+        /// Actualizar el estado a offline
+        ////
         await supabase
+          ///
+          /// Obtener la tabla de usuarios
+          ///
           .from("profiles")
+          ///
+          /// Actualizar el estado a offline
+          ///
           .update({
+            ///
+            /// Estado
+            ///
             status: "offline",
+            ///
+            /// Última vez visto
+            ///
             last_seen: new Date().toISOString(),
           })
+          ///
+          /// Equivalente a WHERE id = userId
+          ///
           .eq("id", user.id);
       }
 
@@ -326,6 +406,9 @@ export const auth = {
       return { error: null };
     } catch (error) {
       return {
+        ///
+        /// Error
+        ///
         error: {
           message:
             error instanceof Error ? error.message : "Error al cerrar sesión",
@@ -354,10 +437,25 @@ export const auth = {
       /// Actualizar el perfil del usuario
       ////
       const { data, error: updateError } = await supabase
+        ///
+        /// Obtener la tabla de usuarios
+        ///
         .from("profiles")
+        ///
+        /// Actualizar el perfil del usuario
+        ///
         .update(profile)
+        ///
+        /// Equivalente a WHERE id = userId
+        ///
         .eq("id", user.user.id)
+        ///
+        /// Seleccionar el usuario
+        ///
         .select()
+        ///
+        /// Retornar el usuario actualizado
+        ///
         .single();
 
       ////
@@ -372,7 +470,13 @@ export const auth = {
       return { user: data, error: null };
     } catch (error) {
       return {
+        ///
+        /// Usuario
+        ///
         user: null,
+        ///
+        /// Error
+        ///
         error: {
           message:
             error instanceof Error

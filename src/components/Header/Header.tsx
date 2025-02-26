@@ -24,10 +24,24 @@ import { NavigationMenu } from "../NavigationMenu/index";
 ////
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+interface HeaderProps {
+  title?: string;
+  backIcon?: keyof typeof Ionicons.glyphMap;
+  onBackPress?: () => void;
+  isSettingsStyle?: boolean;
+  backTitle?: string;
+}
+
 ////
 /// Componente de encabezado
 ////
-export const Header: React.FC = () => {
+export const Header: React.FC<HeaderProps> = ({
+  title,
+  backIcon,
+  onBackPress,
+  isSettingsStyle = false,
+  backTitle = "Atrás",
+}) => {
   ////
   /// Navegación
   ////
@@ -53,6 +67,11 @@ export const Header: React.FC = () => {
   ////
   const [isProfileMenuVisible, setIsProfileMenuVisible] = useState(false);
 
+  ////
+  /// Estado del modo predeterminado
+  ////
+  const isDefaultModeEnabled = !isSettingsStyle && !backIcon;
+
   ///
   /// Estado del menú de navegación
   ///
@@ -77,60 +96,111 @@ export const Header: React.FC = () => {
             {
               backgroundColor: HeaderColors.background,
               borderBottomColor: HeaderColors.border,
+              height: isSettingsStyle
+                ? Platform.OS === "android"
+                  ? 44
+                  : 56
+                : Platform.OS === "ios"
+                ? 56
+                : 64,
             },
           ]}
         >
-          {/* Sección izquierda: Avatar y nombre de usuario */}
-          <TouchableOpacity
-            onPress={() => setIsProfileMenuVisible(true)}
-            style={styles.leftSection}
-          >
-            <View style={styles.avatarContainer}>
-              {user?.avatar_url ? (
-                <Image
-                  source={{ uri: user.avatar_url }}
-                  style={styles.avatar}
-                  defaultSource={require("../../assets/default-avatar.png")}
-                />
-              ) : (
-                <View
+          {/* Sección izquierda */}
+          <View style={styles.leftSection}>
+            {isDefaultModeEnabled ? (
+              <TouchableOpacity
+                onPress={() => setIsProfileMenuVisible(true)}
+                style={styles.userInfoContainer}
+              >
+                <View style={styles.avatarContainer}>
+                  {user?.avatar_url ? (
+                    <Image
+                      source={{ uri: user.avatar_url }}
+                      style={styles.avatar}
+                      defaultSource={require("../../assets/default-avatar.png")}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        styles.avatar,
+                        styles.placeholderAvatar,
+                        {
+                          backgroundColor: HeaderColors.background,
+                          borderColor: HeaderColors.border,
+                        },
+                      ]}
+                    >
+                      <Ionicons
+                        name="person"
+                        size={24}
+                        color={HeaderColors.icon}
+                      />
+                    </View>
+                  )}
+                  {user?.status === "online" && (
+                    <View
+                      style={[
+                        styles.onlineIndicator,
+                        {
+                          backgroundColor: HeaderColors.online,
+                          borderColor: HeaderColors.background,
+                        },
+                      ]}
+                    />
+                  )}
+                </View>
+                <Text
+                  style={[styles.username, { color: theme.text.secondary }]}
+                >
+                  {user?.name || "@" + user?.username || "Usuario"}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.settingsHeader}>
+                <TouchableOpacity
+                  onPress={onBackPress || (() => navigation.goBack())}
+                  style={styles.backButton}
+                >
+                  <Ionicons
+                    name={
+                      isSettingsStyle
+                        ? "chevron-back"
+                        : backIcon || "arrow-back"
+                    }
+                    size={24}
+                    color={theme.action.primary}
+                  />
+                  {isSettingsStyle && (
+                    <Text
+                      style={[styles.backText, { color: theme.action.primary }]}
+                    >
+                      {backTitle}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+                <Text
                   style={[
-                    styles.avatar,
-                    styles.placeholderAvatar,
-                    {
-                      backgroundColor: HeaderColors.background,
-                      borderColor: HeaderColors.border,
-                    },
+                    isSettingsStyle ? styles.settingsTitle : styles.title,
+                    { color: theme.text.primary },
                   ]}
                 >
-                  <Ionicons name="person" size={24} color={HeaderColors.icon} />
-                </View>
-              )}
-              {user?.status === "online" && (
-                <View
-                  style={[
-                    styles.onlineIndicator,
-                    {
-                      backgroundColor: HeaderColors.online,
-                      borderColor: HeaderColors.background,
-                    },
-                  ]}
-                />
-              )}
-            </View>
-            <Text style={[styles.username, { color: theme.text.secondary }]}>
-              {user?.name || "@" + user?.username || "Usuario"}
-            </Text>
-          </TouchableOpacity>
+                  {title}
+                </Text>
+              </View>
+            )}
+          </View>
 
           {/* Sección derecha: Botones de acción */}
           <View style={styles.actionsContainer}>
-            <TouchableOpacity
-              style={[styles.menuButton]}
-              onPress={() => setIsNavigationMenuVisible(true)}
-            >
-              <Ionicons name="menu" size={24} color={theme.icon.primary} />
-            </TouchableOpacity>
+            {isDefaultModeEnabled && (
+              <TouchableOpacity
+                style={[styles.menuButton]}
+                onPress={() => setIsNavigationMenuVisible(true)}
+              >
+                <Ionicons name="menu" size={24} color={theme.icon.primary} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </SafeAreaView>
@@ -158,7 +228,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   container: {
-    height: Platform.OS === "ios" ? 56 : 64,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -166,6 +235,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   leftSection: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  settingsHeader: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+    minHeight: 44,
+  },
+  userInfoContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 8,
@@ -197,6 +279,34 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 8,
     fontWeight: "500",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginLeft: 16,
+  },
+  settingsTitle: {
+    fontSize: 17,
+    fontWeight: "600",
+    textAlign: "center",
+    flex: 1,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: 12,
+    zIndex: 1,
+  },
+  backText: {
+    fontSize: 17,
+    marginLeft: -4,
   },
   actionsContainer: {
     flexDirection: "row",

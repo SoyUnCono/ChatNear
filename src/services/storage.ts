@@ -16,33 +16,63 @@ export const storage = {
       ////
       const response = await fetch(uri);
 
+      ///
+      /// Si no se pudo obtener la imagen, lanzar un error
+      ///
+      if (!response.ok) throw new Error("No se pudo obtener la imagen");
+
       ////
       /// Obtener el blob de la imagen
       ////
       const blob = await response.blob();
 
+      ///
+      /// Imprimir el tamaño de la imagen
+      ///
+      console.log("Tamaño de la imagen:", blob.size / 1024, "KB");
+
       ////
-      /// Obtener el base64 de la imagen
-      const base64 = await new Promise((resolve) => {
-        ////
-        /// Crear un lector de archivos
-        ////
+      /// Convertir a base64
+      ///
+      const base64 = await new Promise<string>((resolve, reject) => {
+        ///
+        /// Crear un reader
+        ///
         const reader = new FileReader();
 
-        ////
-        /// Leer la imagen
-        ////
+        ///
+        /// Cuando se lea la imagen, convertirla a base64
+        ///
         reader.onload = () => {
-          ////
-          /// Si el resultado es una cadena, obtener el base64
-          ////
-          if (typeof reader.result === "string")
-            resolve(reader.result.split(",")[1]);
+          ///
+          /// Si el resultado es un string, convertirlo a base64
+          ///
+          if (typeof reader.result === "string") {
+            ///
+            /// Convertir el resultado a base64
+            ///
+            const base64Data = reader.result.split(",")[1];
+
+            ///
+            /// Resolver la promesa
+            ///
+            resolve(base64Data);
+          } else {
+            ///
+            /// Rechazar la promesa
+            ///
+            reject(new Error("Error al leer la imagen"));
+          }
         };
 
-        ////
-        /// Leer la imagen
-        ////
+        ///
+        /// Si hay un error, lanzar un error
+        ///
+        reader.onerror = () => reject(reader.error);
+
+        ///
+        /// Leer la imagen como dataURL
+        ///
         reader.readAsDataURL(blob);
       });
 
@@ -50,27 +80,48 @@ export const storage = {
       /// Subir la imagen al storage
       ////
       const { data, error } = await supabase.storage
-        ////
-        /// Obtener el bucket de avatares
-        ////
+        ///
+        /// Usar el bucket de avatars
+        ///
         .from("avatars")
-        ////
-        /// Subir la imagen al storage
-        ////
-        .upload(path, decode(base64 as string), {
+        ///
+        /// Subir la imagen
+        ///
+        .upload(path, decode(base64), {
+          ///
+          /// Tipo de contenido
+          ///
           contentType: "image/png",
+          ///
+          /// Upsert
+          ///
           upsert: true,
         });
 
       ////
       /// Si hay un error, lanzar un error
       ////
-      if (error) throw error;
+      if (error) {
+        ///
+        /// Imprimir el error
+        ///
+        console.error("Error al subir imagen:", error);
+
+        ///
+        /// Lanzar el error
+        ///
+        throw error;
+      }
 
       ////
-      /// Construir la URL pública directamente
+      /// Construir la URL pública
       ////
       const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
+
+      ///
+      /// Imprimir la URL pública
+      ///
+      console.log("URL pública de la imagen:", publicUrl);
 
       ////
       /// Retornar la URL pública
@@ -80,7 +131,7 @@ export const storage = {
       ////
       /// Imprimir el error
       ////
-      console.error("Error uploading image:", error);
+      console.error("Error en uploadImage:", error);
 
       ////
       /// Retornar null
@@ -93,7 +144,13 @@ export const storage = {
    * Actualiza el avatar del usuario
    */
   updateUserAvatar: async (
+    ///
+    /// ID del usuario
+    ///
     userId: string,
+    ///
+    /// URL del avatar
+    ///
     avatarUrl: string
   ): Promise<void> => {
     try {
@@ -101,27 +158,38 @@ export const storage = {
       /// Actualizar el avatar del usuario
       ////
       const { error } = await supabase
-        ////
-        /// Obtener la tabla de usuarios
-        ////
+        ///
+        /// Usar la tabla de usuarios
+        ///
         .from("profiles")
-        ////
-        /// Actualizar el avatar del usuario
-        ////
+        ///
+        /// Actualizar el avatar
+        ///
         .update({ avatar_url: avatarUrl })
-        ////
-        /// Equivalente a WHERE id = userId
+        ///
+        /// Equivalente a WHERE
+        ///
         .eq("id", userId);
 
       ////
       /// Si hay un error, lanzar un error
       ////
-      if (error) throw error;
+      if (error) {
+        ///
+        /// Imprimir el error
+        ///
+        console.error("Error al actualizar avatar:", error);
+
+        ///
+        /// Lanzar el error
+        ///
+        throw error;
+      }
     } catch (error) {
       ////
       /// Imprimir el error
       ////
-      console.error("Error updating avatar URL:", error);
+      console.error("Error en updateUserAvatar:", error);
 
       ////
       /// Lanzar el error
@@ -143,12 +211,22 @@ export const storage = {
       ////
       /// Si hay un error, lanzar un error
       ////
-      if (error) throw error;
+      if (error) {
+        ///
+        /// Imprimir el error
+        ///
+        console.error("Error al eliminar imagen:", error);
+
+        ///
+        /// Lanzar el error
+        ///
+        throw error;
+      }
     } catch (error) {
       ////
       /// Imprimir el error
       ////
-      console.error("Error deleting image:", error);
+      console.error("Error en deleteImage:", error);
     }
   },
 };

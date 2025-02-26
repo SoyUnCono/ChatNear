@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,16 @@ import {
   Image,
   StyleSheet,
   Platform,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
-import { Chat } from "../types";
+import { Chat, User } from "../types";
 import { useTheme } from "../contexts/ThemeContext";
 import { formatRelativeTime } from "../utils/date";
+import { supabase } from "../services/supabase";
+import { Ionicons } from "@expo/vector-icons";
 
 ////
 /// Tipos
@@ -34,6 +37,11 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 ////
 export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
   ////
+  /// Estado
+  ///
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  ////
   /// Navegación
   ///
   const navigation = useNavigation<NavigationProp>();
@@ -44,6 +52,39 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
   const { theme } = useTheme();
 
   ////
+  /// Efecto: Obtener el ID del usuario actual
+  ///
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setCurrentUserId(user.id);
+    });
+  }, []);
+
+  ////
+  /// Obtener el otro usuario del chat
+  ///
+  const otherUser = chat.participants?.find(
+    (p) => p.user_id !== currentUserId
+  )?.user;
+
+  ////
+  /// Obtener el nombre para mostrar
+  ///
+  const getDisplayName = () => {
+    if (!otherUser) return "Usuario";
+
+    if (otherUser.username) {
+      return `@${otherUser.username}`;
+    }
+
+    if (otherUser.name) {
+      return otherUser.name;
+    }
+
+    return chat.is_anonymous ? "Usuario Anónimo" : "Usuario";
+  };
+
+  ////
   /// Presionar
   ///
   const handlePress = () => {
@@ -51,6 +92,96 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
     /// Navegar al chat
     ///
     navigation.navigate("Chat", { chatId: chat.id });
+  };
+
+  ////
+  /// Manejar finalización del chat
+  ///
+  const handleEndChat = async () => {
+    try {
+      // 1. Marcar que este usuario ha solicitado finalizar el chat
+      const { error: updateError } = await supabase
+        .from("chat_participants")
+        .update({ has_requested_end: true })
+        .eq("chat_id", chat.id)
+        .eq("user_id", currentUserId);
+
+      if (updateError) throw updateError;
+
+      // 2. Verificar si ambos usuarios han solicitado finalizar
+      const { data: participants, error: checkError } = await supabase
+        .from("chat_participants")
+        .select("has_requested_end")
+        .eq("chat_id", chat.id);
+
+      if (checkError) throw checkError;
+
+      const allRequestedEnd = participants?.every((p) => p.has_requested_end);
+
+      if (allRequestedEnd) {
+        // Si ambos usuarios han solicitado finalizar, terminar el chat
+        const { error: chatError } = await supabase
+          .from("chats")
+          .update({
+            status: "ended",
+            ended_at: new Date().toISOString(),
+          })
+          .eq("id", chat.id);
+
+        if (chatError) throw chatError;
+
+        // Eliminar a los participantes del chat
+        const { error: deleteError } = await supabase
+          .from("chat_participants")
+          .delete()
+          .eq("chat_id", chat.id);
+
+        if (deleteError) throw deleteError;
+
+        Alert.alert(
+          "Chat finalizado",
+          "El chat ha sido finalizado por ambos usuarios y podrán volver a conectar en el futuro"
+        );
+      } else {
+        Alert.alert(
+          "Solicitud enviada",
+          "Has solicitado finalizar el chat. Se finalizará cuando el otro usuario también lo solicite."
+        );
+      }
+    } catch (error) {
+      console.error("Error al finalizar el chat:", error);
+      Alert.alert(
+        "Error",
+        "No se pudo procesar tu solicitud. Por favor intenta nuevamente."
+      );
+    }
+  };
+
+  ////
+  /// Mostrar menú contextual
+  ///
+  const showContextMenu = () => {
+    Alert.alert("Opciones del chat", "¿Qué deseas hacer con este chat?", [
+      {
+        text: "Finalizar chat",
+        onPress: () => {
+          Alert.alert(
+            "Confirmar finalización",
+            "¿Estás seguro de que deseas finalizar este chat? El chat solo se finalizará cuando ambos usuarios lo soliciten, permitiendo que puedan volver a conectar en el futuro.",
+            [
+              { text: "Cancelar", style: "cancel" },
+              {
+                text: "Finalizar",
+                onPress: handleEndChat,
+                style: "destructive",
+              },
+            ]
+          );
+        },
+        style: "destructive",
+      },
+      { text: "Cancelar", style: "cancel" },
+    ]);
   };
 
   ////
@@ -66,13 +197,15 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
         },
       ]}
       onPress={handlePress}
+      onLongPress={showContextMenu}
+      delayLongPress={500}
       activeOpacity={0.7}
     >
       {/* Avatar */}
       <View style={styles.avatarContainer}>
-        {chat.otherUser.avatar_url ? (
+        {otherUser?.avatar_url ? (
           <Image
-            source={{ uri: chat.otherUser.avatar_url }}
+            source={{ uri: otherUser.avatar_url }}
             style={styles.avatar}
             defaultSource={require("../assets/default-avatar.png")}
           />
@@ -83,9 +216,11 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
               styles.placeholderAvatar,
               { backgroundColor: theme.background.secondary },
             ]}
-          />
+          >
+            <Ionicons name="person" size={24} color={theme.icon.secondary} />
+          </View>
         )}
-        {chat.otherUser.status === "online" && (
+        {otherUser?.status === "online" && (
           <View
             style={[
               styles.onlineIndicator,
@@ -105,13 +240,13 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
             style={[styles.name, { color: theme.text.primary }]}
             numberOfLines={1}
           >
-            {chat.otherUser.name || "Usuario Anónimo"}
+            {getDisplayName()}
           </Text>
           <Text
             style={[styles.time, { color: theme.text.secondary }]}
             numberOfLines={1}
           >
-            {formatRelativeTime(chat.lastMessage?.timestamp)}
+            {formatRelativeTime(chat.lastMessage?.created_at)}
           </Text>
         </View>
 
@@ -119,11 +254,11 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
           style={[styles.message, { color: theme.text.secondary }]}
           numberOfLines={2}
         >
-          {chat.lastMessage?.text || "No hay mensajes"}
+          {chat.lastMessage?.content || "No hay mensajes"}
         </Text>
 
         {/* Indicador de mensajes no leídos */}
-        {chat.unreadCount > 0 && (
+        {chat.unreadCount ? (
           <View
             style={[
               styles.unreadBadge,
@@ -134,7 +269,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({ chat }) => {
               {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
             </Text>
           </View>
-        )}
+        ) : null}
       </View>
     </TouchableOpacity>
   );
