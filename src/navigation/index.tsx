@@ -16,13 +16,16 @@ import { RegionSettings } from "../screens/settings/pages/RegionSettings";
 import { EditProfile } from "../screens/settings/pages/EditProfile";
 import { ChangePassword } from "../screens/settings/pages/ChangePassword";
 import { useAuth } from "../contexts/AuthContext";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { Header } from "../components/Header";
 import { NavigationMenu } from "../components/NavigationMenu/index";
 import { RandomChatProvider } from "../contexts/RandomChatContext";
 import React from "react";
 import { useNotificationResponse } from "../hooks/useNotificationResponse";
 import * as Notifications from "expo-notifications";
+import { AnimatedBackground } from "../components/AnimatedBackground";
+import { useTheme } from "../contexts/ThemeContext";
+import { SearchFiltersScreen } from "../screens/settings/search-filters/SearchFiltersScreen";
 
 ////
 /// Stack de navegación
@@ -42,6 +45,11 @@ const AuthNavigator = () => {
     <AuthStack.Navigator
       screenOptions={{
         headerShown: false,
+        contentStyle: {
+          backgroundColor: "transparent",
+        },
+        animation: "slide_from_right",
+        animationDuration: 200,
       }}
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
@@ -54,11 +62,21 @@ const AuthNavigator = () => {
 /// Navegador principal
 ////
 const MainNavigator = () => {
+  const { theme } = useTheme();
+
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Navigator
         screenOptions={{
           header: () => <Header />,
+          contentStyle: {
+            backgroundColor: "transparent",
+          },
+          animation: "slide_from_right",
+          animationDuration: 200,
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
@@ -70,16 +88,78 @@ const MainNavigator = () => {
         <Stack.Screen
           name="NotificationSettings"
           component={NotificationSettings}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
         />
-        <Stack.Screen name="PrivacySettings" component={PrivacySettings} />
-        <Stack.Screen name="SecuritySettings" component={SecuritySettings} />
-        <Stack.Screen name="LanguageSettings" component={LanguageSettings} />
-        <Stack.Screen name="RegionSettings" component={RegionSettings} />
-        <Stack.Screen name="EditProfile" component={EditProfile} />
-        <Stack.Screen name="ChangePassword" component={ChangePassword} />
+        <Stack.Screen
+          name="PrivacySettings"
+          component={PrivacySettings}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+        <Stack.Screen
+          name="SecuritySettings"
+          component={SecuritySettings}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+        <Stack.Screen
+          name="LanguageSettings"
+          component={LanguageSettings}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+        <Stack.Screen
+          name="RegionSettings"
+          component={RegionSettings}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+        <Stack.Screen
+          name="ChangePassword"
+          component={ChangePassword}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
+        <Stack.Screen
+          name="SearchFilters"
+          component={SearchFiltersScreen}
+          options={{
+            animation: "slide_from_right",
+            animationDuration: 200,
+            contentStyle: { backgroundColor: "transparent" },
+          }}
+        />
       </Stack.Navigator>
       <NavigationMenu visible={false} onClose={() => {}} />
-    </>
+    </View>
   );
 };
 
@@ -106,6 +186,7 @@ export function Navigation() {
   /// Estado: Usuario & Cargando
   ///
   const { user, loading } = useAuth();
+  const { theme } = useTheme();
 
   ///
   /// Si está cargando los datos del usuario o no hay usuario, mostrar un
@@ -113,8 +194,8 @@ export function Navigation() {
   ///
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={theme.action.primary} />
       </View>
     );
   }
@@ -126,8 +207,17 @@ export function Navigation() {
     <NavigationContainer>
       <NotificationHandler />
       <RandomChatProvider>
-        {user ? <MainNavigator /> : <AuthNavigator />}
+        <AnimatedBackground style={styles.container}>
+          {user ? <MainNavigator /> : <AuthNavigator />}
+        </AnimatedBackground>
       </RandomChatProvider>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+});

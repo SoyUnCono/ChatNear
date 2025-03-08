@@ -7,9 +7,7 @@ export const LanguageSettings: React.FC = () => {
   const { theme } = useTheme();
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
-    >
+    <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={[styles.title, { color: theme.text.primary }]}>
           Idioma
@@ -25,12 +23,14 @@ export const LanguageSettings: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   content: {
     flex: 1,
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "transparent",
   },
   title: {
     fontSize: 24,

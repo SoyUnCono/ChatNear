@@ -54,6 +54,7 @@ export const lightTheme = {
     secondary: "#1A1A1A",
     tertiary: "#4A4A4A",
     inverse: "#FFFFFF",
+    contrast: "#FFFFFF",
   },
   // Colores de borde
   border: {
@@ -84,6 +85,11 @@ export const lightTheme = {
   notification: {
     badge: "#FF3B30", // iOS Red
     background: "#FFFFFF",
+  },
+  // Colores de chat
+  chat: {
+    ownMessage: palette.blue[500],
+    otherMessage: palette.gray[100],
   },
 };
 
@@ -131,6 +137,11 @@ export const darkTheme = {
   notification: {
     badge: "#FF453A", // iOS Dark Mode Red
     background: "#1C1C1E",
+  },
+  // Colores de chat
+  chat: {
+    ownMessage: palette.blue[500],
+    otherMessage: palette.gray[700],
   },
 };
 

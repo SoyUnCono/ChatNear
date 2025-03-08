@@ -24,8 +24,16 @@ begin
 end;
 $$ language plpgsql;
 
--- Función para hacer match de usuarios aleatorios
-create or replace function public.match_random_users() returns void as $$
+-- Eliminar el trigger primero
+drop trigger if exists match_random_users_trigger on public.random_queue;
+
+-- Eliminar las funciones existentes
+drop function if exists public.match_random_users();
+drop function if exists public.match_random_users_trigger();
+drop function if exists public.process_random_matches();
+
+-- Función principal para procesar matches aleatorios
+create function public.process_random_matches() returns void as $$
 declare
   entry1 record;
   entry2 record;
@@ -35,6 +43,7 @@ declare
   lon1 float;
   lat2 float;
   lon2 float;
+  is_blocked boolean;
 begin
   -- Iterar sobre los usuarios en la cola
   for entry1 in (
@@ -47,6 +56,18 @@ begin
       where id > entry1.id -- Evitar duplicados
       order by created_at asc
     ) loop
+      -- Verificar si alguno de los usuarios ha bloqueado al otro
+      select exists(
+        select 1 from public.blocked_users
+        where (user_id = entry1.user_id and blocked_user_id = entry2.user_id)
+           or (user_id = entry2.user_id and blocked_user_id = entry1.user_id)
+      ) into is_blocked;
+      
+      -- Si hay bloqueo, continuar con el siguiente par
+      if is_blocked then
+        continue;
+      end if;
+
       -- Si ambos tienen ubicación, verificar distancia
       if entry1.location is not null and entry2.location is not null then
         -- Extraer coordenadas
@@ -89,11 +110,19 @@ begin
 end;
 $$ language plpgsql;
 
+-- Función del trigger que llama a la función principal
+create function public.match_random_users_trigger() returns trigger as $$
+begin
+  perform public.process_random_matches();
+  return NEW;
+end;
+$$ language plpgsql;
+
 -- Crear un trigger para ejecutar la función
 create trigger match_random_users_trigger
   after insert on public.random_queue
   for each row
-  execute function public.match_random_users();
+  execute function public.match_random_users_trigger();
 
 -- Crear un job que ejecute la función cada minuto
 create extension if not exists pg_cron;
@@ -101,5 +130,5 @@ create extension if not exists pg_cron;
 select cron.schedule(
   'match-random-users',  -- nombre único para el job
   '* * * * *',          -- ejecutar cada minuto
-  $$select public.match_random_users()$$
+  $$select public.process_random_matches()$$
 ); 

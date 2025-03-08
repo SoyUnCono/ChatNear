@@ -5,9 +5,11 @@ import {
   NavigationContainerRef,
 } from "@react-navigation/native";
 import {
-  NotificationPayload,
   NotificationType,
+  NotificationPayload,
 } from "../services/notifications/pushNotifications";
+
+
 
 export const useNotificationResponse = () => {
   // Mantener una referencia a la última notificación recibida cuando la app no estaba lista para navegar
@@ -37,7 +39,7 @@ export const useNotificationResponse = () => {
         const payload = notification.request.content
           .data as NotificationPayload;
         console.log("Received notification in foreground:", payload);
-        // Aquí puedes manejar la notificación en primer plano
+        // TODO: Aquí puedes manejar la notificación en primer plano
         // Por ejemplo, mostrar un toast, actualizar un badge, etc.
       });
 
@@ -89,9 +91,11 @@ export const useNotificationResponse = () => {
           break;
 
         case "newMatch":
-          navigation.navigate("Profile", {
-            userId: payload.data.userId,
-          });
+          if (payload.data.chatId) {
+            navigation.navigate("Chat", {
+              chatId: payload.data.chatId,
+            });
+          }
           break;
 
         case "custom":
@@ -104,7 +108,7 @@ export const useNotificationResponse = () => {
           break;
 
         default:
-          console.log("Unhandled notification type:", payload.type);
+          console.log("Unhandled notification type:", payload);
       }
     } catch (error) {
       console.error("Error handling notification navigation:", error);

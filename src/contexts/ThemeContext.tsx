@@ -45,6 +45,37 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 ////
 const THEME_MODE_KEY = "@theme_mode";
 
+///
+/// Tema
+///
+export interface Theme {
+  background: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+  };
+  text: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    inverse: string;
+    contrast: string;
+  };
+  action: {
+    primary: string;
+    secondary: string;
+  };
+  chat: {
+    ownMessage: string;
+    otherMessage: string;
+  };
+  status: {
+    success: string;
+    error: string;
+    warning: string;
+  };
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {

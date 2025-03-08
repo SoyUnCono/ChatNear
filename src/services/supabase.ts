@@ -6,6 +6,7 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@env";
 ///
 /// Variables de entorno
 ///
+console.log("SUPABASE_URL", SUPABASE_URL);
 
 ////
 /// Verificar si las variables de entorno están definidas

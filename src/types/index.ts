@@ -29,22 +29,35 @@ export interface DbMessage {
   content: string;
   created_at: string;
   sender_id: string;
-  read: boolean;
-  sender: {
+  image_url: string | null;
+  sender?: {
     id: string;
     name: string | null;
     username: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 }
 
 ///
 /// Mensaje completo
 ///
-export interface Message extends DbMessage {
+export interface Message {
+  id: string;
   chat_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
   updated_at: string;
-  is_system: boolean;
+  sent: boolean;
+  read: boolean;
+  read_at?: string;
+  read_by?: Array<{
+    user_id: string;
+    read_at: string;
+  }>;
+  is_system?: boolean;
+  image_url?: string | null;
+  sender?: User;
 }
 
 ///

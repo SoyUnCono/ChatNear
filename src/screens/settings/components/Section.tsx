@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 ////
 /// Tipos
@@ -17,6 +18,11 @@ interface SectionProps {
   description?: string;
 
   ///
+  /// Icono
+  ///
+  icon?: string;
+
+  ///
   /// Contenido
   ///
   children: React.ReactNode;
@@ -28,6 +34,7 @@ interface SectionProps {
 export const Section: React.FC<SectionProps> = ({
   title,
   description,
+  icon,
   children,
 }) => {
   ///
@@ -41,16 +48,34 @@ export const Section: React.FC<SectionProps> = ({
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <Text style={[styles.sectionTitle, { color: theme.text.secondary }]}>
-          {title}
-        </Text>
-        {description && (
-          <Text
-            style={[styles.sectionDescription, { color: theme.text.secondary }]}
-          >
-            {description}
-          </Text>
-        )}
+        <View style={styles.headerContent}>
+          {icon && (
+            <View style={styles.iconContainer}>
+              <Ionicons
+                name={icon as any}
+                size={20}
+                color={theme.text.secondary}
+              />
+            </View>
+          )}
+          <View style={styles.textContainer}>
+            <Text
+              style={[styles.sectionTitle, { color: theme.text.secondary }]}
+            >
+              {title}
+            </Text>
+            {description && (
+              <Text
+                style={[
+                  styles.sectionDescription,
+                  { color: theme.text.secondary },
+                ]}
+              >
+                {description}
+              </Text>
+            )}
+          </View>
+        </View>
       </View>
       <View
         style={[
@@ -74,6 +99,16 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 8,
     marginHorizontal: 16,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
   },
   sectionTitle: {
     fontSize: 13,

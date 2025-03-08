@@ -8,7 +8,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { MainStackParamList } from "../../navigation/types";
 import { Section } from "./components/Section";
 import { SwitchItem } from "./components/SwitchItem";
-import { DistanceSlider } from "./components/DistanceSlider";
 import { useChatSettings } from "./hooks/useChatSettings";
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
@@ -20,17 +19,15 @@ export const SettingsScreen: React.FC = () => {
   const { settings, updateSetting } = useChatSettings();
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
-      edges={["top", "bottom"]}
-    >
+    <SafeAreaView style={[styles.container]} edges={["top", "bottom"]}>
       <StatusBar
-        backgroundColor={theme.background.primary}
+        backgroundColor="transparent"
         barStyle={isDarkMode ? "light-content" : "dark-content"}
+        translucent
       />
 
       <ScrollView
-        style={styles.content}
+        style={[styles.content, { backgroundColor: "transparent" }]}
         contentContainerStyle={styles.contentContainer}
       >
         {/* Ajustes de Chat */}
@@ -58,26 +55,22 @@ export const SettingsScreen: React.FC = () => {
           />
         </Section>
 
-        {/* Filtro de Distancia */}
+        {/* Filtros de Búsqueda */}
         <Section
-          title="FILTRO DE DISTANCIA"
-          description="Define el rango de búsqueda para nuevos chats."
+          title="BÚSQUEDA"
+          description="Personaliza cómo encontrar nuevos chats"
         >
-          <DistanceSlider
-            value={settings.distance_km}
-            onValueChange={(value) => updateSetting("distance_km", value)}
+          <SwitchItem
+            title="Filtros de búsqueda"
+            subtitle="Distancia, edad, género y más"
+            onPress={() => navigation.navigate("SearchFilters")}
+            icon="options-outline"
+            isLink
           />
         </Section>
 
-        {/* Idiomas */}
-        <Section title="IDIOMAS">
-          <SwitchItem
-            title="Idioma de la aplicación"
-            subtitle="Español"
-            onPress={() => navigation.navigate("LanguageSettings")}
-            icon="language-outline"
-            isLink
-          />
+        {/* Pais */}
+        <Section title="PAIS">
           <SwitchItem
             title="Región"
             subtitle="España"
@@ -106,7 +99,7 @@ export const SettingsScreen: React.FC = () => {
           />
           {/* <SwitchItem
             title="Verificación en dos pasos"
-            onPress={() => navigation.navigate("")}
+            onPress={() => navigation.navigate("TwoFactorAuth")}
             icon="lock-closed-outline"
             isLink
           /> */}
@@ -170,6 +163,7 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   content: {
     flex: 1,

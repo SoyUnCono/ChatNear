@@ -1,5 +1,11 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Platform,
+  ViewStyle,
+} from "react-native";
 import { useTheme } from "../contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -26,6 +32,11 @@ interface RandomChatButtonProps {
   /// Deshabilitado
   ///
   disabled?: boolean;
+
+  ///
+  /// Estilos adicionales del contenedor
+  ///
+  containerStyle?: ViewStyle;
 }
 
 ////
@@ -36,56 +47,49 @@ export const RandomChatButton: React.FC<RandomChatButtonProps> = ({
   onPress,
   variant = "primary",
   disabled = false,
+  containerStyle,
 }) => {
   ////
   /// Tema
   ///
   const { theme } = useTheme();
 
+  const buttonStyle = {
+    backgroundColor: variant === "primary" ? theme.action.primary : "white",
+    borderWidth: variant === "secondary" ? 0 : 0,
+    opacity: disabled ? 0.5 : 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: theme.action.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  };
+
+  const textColor = variant === "primary" ? "white" : theme.action.primary;
+
   ////
   /// Renderizado
   ////
   return (
     <TouchableOpacity
-      style={[
-        styles.button,
-        {
-          backgroundColor:
-            variant === "primary" ? theme.action.primary : "transparent",
-          borderWidth: variant === "secondary" ? 1 : 0,
-          borderColor: "white",
-          opacity: disabled ? 0.5 : 1,
-          ...Platform.select({
-            ios: {
-              shadowColor: theme.action.primary,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: variant === "primary" ? 0.3 : 0,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: variant === "primary" ? 8 : 0,
-            },
-          }),
-        },
-      ]}
+      style={[styles.button, buttonStyle, containerStyle]}
       onPress={onPress}
       activeOpacity={0.8}
       disabled={disabled}
     >
       <Ionicons
-        name="people"
+        name={variant === "primary" ? "people" : "close-circle"}
         size={24}
-        color={variant === "primary" ? "white" : theme.action.primary}
+        color={textColor}
         style={styles.icon}
       />
-      <Text
-        style={[
-          styles.text,
-          { color: variant === "primary" ? "white" : theme.action.primary },
-        ]}
-      >
-        {label}
-      </Text>
+      <Text style={[styles.text, { color: textColor }]}>{label}</Text>
     </TouchableOpacity>
   );
 };
@@ -100,7 +104,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: 16,
     position: "absolute",
     bottom: 24,
     left: 24,
@@ -111,6 +115,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });

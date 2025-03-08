@@ -114,9 +114,19 @@ export const storage = {
       }
 
       ////
-      /// Construir la URL pública
+      /// Obtener la URL pública usando el método de Supabase
       ////
-      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
+      const {
+        data: { publicUrl },
+      } = supabase.storage
+        ///
+        /// Usar el bucket de avatars
+        ///
+        .from("avatars")
+        ///
+        /// Obtener la URL pública
+        ///
+        .getPublicUrl(path);
 
       ///
       /// Imprimir la URL pública

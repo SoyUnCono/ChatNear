@@ -83,10 +83,7 @@ export const EditProfile: React.FC = () => {
   /// Renderizado
   ///
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
-      edges={["bottom"]}
-    >
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <ScrollView style={styles.content}>
         <Section title="FOTO DE PERFIL">
           <AvatarPicker
@@ -142,8 +139,10 @@ export const EditProfile: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   content: {
     flex: 1,
+    backgroundColor: "transparent",
   },
 });

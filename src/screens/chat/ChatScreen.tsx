@@ -1,10 +1,11 @@
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import {
   View,
   Text,
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  ViewabilityConfig,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -15,7 +16,7 @@ import { styles } from "./styles";
 import { useChatLogic } from "./hooks/useChatLogic";
 import { ChatHeader } from "./components/ChatHeader";
 import { MessageItem } from "./components/MessageItem";
-import { MessageInput } from "./components/MessageInput";
+import { ChatInput } from "./components/ChatInput";
 
 type ChatScreenRouteProp = RouteProp<MainStackParamList, "Chat">;
 
@@ -25,13 +26,26 @@ export const ChatScreen: React.FC = () => {
   const navigation = useNavigation();
   const { chatId } = route.params;
 
-  const { messages, currentUser, otherUser, isLoading, chat, handleSend } =
-    useChatLogic(chatId);
+  const {
+    messages,
+    currentUser,
+    otherUser,
+    isLoading,
+    chat,
+    handleSend,
+    handleTyping,
+    isSending,
+    onViewableItemsChanged,
+  } = useChatLogic(chatId);
+
+  const viewabilityConfig = useRef<ViewabilityConfig>({
+    itemVisiblePercentThreshold: 50,
+    minimumViewTime: 300,
+  }).current;
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerShown: true,
-      headerTitle: () => (
+      header: () => (
         <ChatHeader
           otherUser={otherUser}
           chat={chat}
@@ -39,26 +53,25 @@ export const ChatScreen: React.FC = () => {
           theme={theme}
         />
       ),
-      headerStyle: {
-        backgroundColor: theme.background.secondary,
-      },
-      headerShadowVisible: false,
+      headerShown: true,
     });
-  }, [otherUser, chat, theme, navigation]);
+  }, [navigation, otherUser, chat, theme]);
 
-  const renderMessage = ({ item: message }: { item: Message }) => (
-    <MessageItem
-      message={message}
-      isOwnMessage={message.sender_id === currentUser?.id}
-      theme={theme}
-    />
-  );
+  const renderMessage = ({ item: message }: { item: Message }) => {
+    const isOwnMessage = message.sender_id === currentUser?.id;
+    return (
+      <MessageItem
+        message={message}
+        isOwnMessage={isOwnMessage}
+        theme={theme}
+        sender={isOwnMessage ? currentUser : otherUser}
+      />
+    );
+  };
 
   if (isLoading) {
     return (
-      <View
-        style={[styles.loading, { backgroundColor: theme.background.primary }]}
-      >
+      <View style={[styles.loading, { backgroundColor: "transparent" }]}>
         <Text style={{ color: theme.text.primary }}>Cargando chat...</Text>
       </View>
     );
@@ -66,23 +79,30 @@ export const ChatScreen: React.FC = () => {
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
+      style={[styles.container, { backgroundColor: "transparent" }]}
       edges={["bottom"]}
     >
       <KeyboardAvoidingView
+        style={[styles.content, { backgroundColor: "transparent" }]}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.content}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
         <FlatList
           data={messages}
-          renderItem={renderMessage}
           keyExtractor={(item) => item.id}
+          renderItem={renderMessage}
           inverted
           contentContainerStyle={styles.messagesList}
+          showsVerticalScrollIndicator={false}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
         />
 
-        <MessageInput onSend={handleSend} theme={theme} />
+        <ChatInput
+          onSend={handleSend}
+          disabled={isSending || chat?.status !== "active"}
+          onTyping={handleTyping}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

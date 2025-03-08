@@ -7,10 +7,8 @@ export const SecuritySettings: React.FC = () => {
   const { theme } = useTheme();
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
-    >
-      <View style={styles.content}>
+    <SafeAreaView style={[styles.container]}>
+      <View style={[styles.content, { backgroundColor: "transparent" }]}>
         <Text style={[styles.title, { color: theme.text.primary }]}>
           Seguridad
         </Text>
@@ -25,12 +23,14 @@ export const SecuritySettings: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   content: {
     flex: 1,
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "transparent",
   },
   title: {
     fontSize: 24,

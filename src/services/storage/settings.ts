@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 ///
 /// Servicio de almacenamiento de configuración
 ///
-export class SettingsStorage<T extends Record<string, any>> {
+export class SettingsStorage<T extends object> {
   ///
   /// Clave del almacenamiento
   ///
@@ -11,12 +11,12 @@ export class SettingsStorage<T extends Record<string, any>> {
   ///
   /// Valores por defecto
   ///
-  private defaultValues: T;
+  private defaultSettings: T;
 
   ///
   /// Constructor
   ///
-  constructor(key: string, defaultValues: T) {
+  constructor(key: string, defaultSettings: T) {
     ///
     /// Asignar la clave del almacenamiento
     ///
@@ -24,58 +24,59 @@ export class SettingsStorage<T extends Record<string, any>> {
     ///
     /// Asignar los valores por defecto
     ///
-    this.defaultValues = defaultValues;
+    this.defaultSettings = defaultSettings;
   }
 
   ///
-  /// Cargar los valores de la configuración
+  /// Obtener la configuración almacenada
   ///
-  async load(): Promise<T> {
+  async getSettings(): Promise<T> {
     try {
       ///
-      /// Obtener los valores de la configuración
+      /// Obtener la configuración almacenada
       ///
-      const savedSettings = await AsyncStorage.getItem(this.key);
+      const settings = await AsyncStorage.getItem(this.key);
       ///
-      /// Retornar los valores de la configuración
+      /// Retornar la configuración almacenada
       ///
-      return savedSettings
-        ? { ...this.defaultValues, ...JSON.parse(savedSettings) }
-        : this.defaultValues;
+      return settings ? JSON.parse(settings) : this.defaultSettings;
     } catch (error) {
       ///
       /// Mostrar un mensaje de advertencia
       ///
-      console.error(`Error loading settings for ${this.key}:`, error);
+      console.error(`Error getting settings for ${this.key}:`, error);
       ///
       /// Retornar los valores por defecto
       ///
-      return this.defaultValues;
+      return this.defaultSettings;
     }
   }
 
   ///
-  /// Guardar los valores de la configuración
+  /// Actualizar la configuración
   ///
-  async save(settings: Partial<T>): Promise<void> {
+  async updateSettings(newSettings: Partial<T>): Promise<void> {
     try {
       ///
-      /// Obtener los valores de la configuración
+      /// Obtener la configuración actual
       ///
-      const currentSettings = await this.load();
+      const currentSettings = await this.getSettings();
       ///
-      /// Obtener los nuevos valores de la configuración
+      /// Obtener la nueva configuración
       ///
-      const newSettings = { ...currentSettings, ...settings };
+      const updatedSettings = {
+        ...currentSettings,
+        ...newSettings,
+      };
       ///
-      /// Guardar los nuevos valores de la configuración
+      /// Guardar la nueva configuración
       ///
-      await AsyncStorage.setItem(this.key, JSON.stringify(newSettings));
+      await AsyncStorage.setItem(this.key, JSON.stringify(updatedSettings));
     } catch (error) {
       ///
       /// Mostrar un mensaje de advertencia
       ///
-      console.error(`Error saving settings for ${this.key}:`, error);
+      console.error(`Error updating settings for ${this.key}:`, error);
       ///
       /// Lanzar el error
       ///
@@ -84,22 +85,22 @@ export class SettingsStorage<T extends Record<string, any>> {
   }
 
   ///
-  /// Limpiar los valores de la configuración
+  /// Resetear la configuración a los valores por defecto
   ///
-  async clear(): Promise<void> {
-    ///
-    /// Intentar limpiar los valores de la configuración
-    ///
+  async resetSettings(): Promise<void> {
     try {
       ///
-      /// Limpiar los valores de la configuración
+      /// Guardar la configuración por defecto
       ///
-      await AsyncStorage.removeItem(this.key);
+      await AsyncStorage.setItem(
+        this.key,
+        JSON.stringify(this.defaultSettings)
+      );
     } catch (error) {
       ///
       /// Mostrar un mensaje de advertencia
       ///
-      console.error(`Error clearing settings for ${this.key}:`, error);
+      console.error(`Error resetting settings for ${this.key}:`, error);
       ///
       /// Lanzar el error
       ///

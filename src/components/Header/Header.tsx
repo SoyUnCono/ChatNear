@@ -18,6 +18,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ProfileMenu } from "../ProfileMenu/ProfileMenu";
 import { NavigationMenu } from "../NavigationMenu/index";
+import { NotificationsButton } from '../NotificationsButton';
+import { NotificationsModal } from '../NotificationsModal';
 
 ////
 /// Tipos
@@ -76,6 +78,11 @@ export const Header: React.FC<HeaderProps> = ({
   /// Estado del menú de navegación
   ///
   const [isNavigationMenuVisible, setIsNavigationMenuVisible] = useState(false);
+
+  ////
+  /// Estado de notificaciones
+  ////
+  const [showNotifications, setShowNotifications] = useState(false);
 
   ////
   /// Renderizado
@@ -201,6 +208,11 @@ export const Header: React.FC<HeaderProps> = ({
                 <Ionicons name="menu" size={24} color={theme.icon.primary} />
               </TouchableOpacity>
             )}
+            {!isSettingsStyle && (
+              <NotificationsButton
+                onPress={() => setShowNotifications(true)}
+              />
+            )}
           </View>
         </View>
       </SafeAreaView>
@@ -215,6 +227,11 @@ export const Header: React.FC<HeaderProps> = ({
       <NavigationMenu
         visible={isNavigationMenuVisible}
         onClose={() => setIsNavigationMenuVisible(false)}
+      />
+
+      <NotificationsModal
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
       />
     </>
   );

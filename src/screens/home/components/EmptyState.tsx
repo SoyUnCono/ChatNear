@@ -3,13 +3,28 @@ import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../../contexts/ThemeContext";
 
+///
+/// Props
+///
 interface EmptyStateProps {
+  ///
+  /// Error de  permiso de ubicación
+  ///
   locationError?: string | null;
 }
 
+///
+/// EmptyState
+///
 export const EmptyState: React.FC<EmptyStateProps> = ({ locationError }) => {
+  ///
+  /// Tema
+  ///
   const { theme } = useTheme();
 
+  ///
+  /// Renderizado
+  ///
   return (
     <View style={styles.container}>
       <Ionicons

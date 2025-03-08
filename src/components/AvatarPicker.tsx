@@ -1,8 +1,9 @@
 import React from "react";
-import { View, TouchableOpacity, Image, StyleSheet, Alert } from "react-native";
+import { View, TouchableOpacity, Image, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
+import { CustomAlert } from "./CustomAlert";
 
 ////
 /// Tipos
@@ -53,9 +54,16 @@ export const AvatarPicker: React.FC<Props> = ({
       /// Si no se han concedido permisos, mostrar un mensaje de error
       ///
       if (status !== "granted") {
-        Alert.alert(
+        ///
+        /// Mostrar mensaje de error
+        ///
+        CustomAlert.error(
           "Permiso denegado",
-          "Necesitamos acceso a tu galería para seleccionar una foto de perfil"
+          "Necesitamos acceso a tu galería para seleccionar una foto de perfil",
+          [
+            { text: "Cancelar", style: "cancel" },
+            { text: "Permitir", style: "default", onPress: () => {} },
+          ]
         );
         return;
       }
@@ -63,7 +71,7 @@ export const AvatarPicker: React.FC<Props> = ({
       ////
       /// Mostrar instrucciones antes de abrir el selector
       ///
-      Alert.alert(
+      CustomAlert.info(
         "Seleccionar foto de perfil",
         "Selecciona una foto de tu galería y ajústala para usarla como foto de perfil.",
         [
@@ -109,14 +117,31 @@ export const AvatarPicker: React.FC<Props> = ({
                 if (!result.canceled && result.assets[0]) {
                   const imageUri = result.assets[0].uri;
 
-                  // Verificar el tamaño del archivo
+                  ////
+                  /// Verificar el tamaño del archivo
+                  ///
                   const response = await fetch(imageUri);
+
+                  ///
+                  /// Obtener el tamaño del archivo
+                  ///
                   const blob = await response.blob();
+
+                  ///
+                  /// Obtener el tamaño del archivo
+                  ///
                   const fileSize = blob.size;
+
+                  ///
+                  /// Verificar el tamaño del archivo
+                  ///
                   const maxSize = 5 * 1024 * 1024; // 5MB
 
+                  ///
+                  /// Si el tamaño del archivo es demasiado grande, mostrar un mensaje de error
+                  ///
                   if (fileSize > maxSize) {
-                    Alert.alert(
+                    CustomAlert.error(
                       "Error",
                       "La imagen es demasiado grande. Por favor selecciona una imagen más pequeña (máximo 5MB)."
                     );
@@ -129,8 +154,10 @@ export const AvatarPicker: React.FC<Props> = ({
                   onImageSelected(imageUri);
                 }
               } catch (error) {
-                console.error("Error al seleccionar imagen:", error);
-                Alert.alert(
+                ///
+                /// Mostrar mensaje de error
+                ///
+                CustomAlert.error(
                   "Error",
                   "No se pudo seleccionar la imagen. Por favor, intenta de nuevo."
                 );
@@ -140,8 +167,10 @@ export const AvatarPicker: React.FC<Props> = ({
         ]
       );
     } catch (error) {
-      console.error("Error al acceder a la galería:", error);
-      Alert.alert(
+      ///
+      /// Mostrar mensaje de error
+      ///
+      CustomAlert.error(
         "Error",
         "No se pudo acceder a la galería. Por favor, intenta de nuevo."
       );
@@ -157,7 +186,14 @@ export const AvatarPicker: React.FC<Props> = ({
       onPress={pickImage}
     >
       {imageUri ? (
-        <Image source={{ uri: imageUri }} style={styles.avatar} />
+        <Image
+          source={{
+            uri: imageUri,
+            cache: "reload",
+            headers: { Pragma: "no-cache" },
+          }}
+          style={styles.avatar}
+        />
       ) : (
         <View
           style={[

@@ -6,17 +6,46 @@ import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { MainStackParamList } from "../../navigation/types";
 import { Header } from "../../components/Header/Header";
 
+///
+/// Props
+///
 type ProfileScreenRouteProp = RouteProp<MainStackParamList, "Profile">;
 
+///
+/// ProfileScreen
+///
 export const ProfileScreen: React.FC = () => {
+  ///
+  /// Tema
+  ///
   const { theme } = useTheme();
+
+  ///
+  /// Ruta
+  ///
   const route = useRoute<ProfileScreenRouteProp>();
+
+  ///
+  /// Navegación
+  ///
   const navigation = useNavigation();
+
+  ///
+  /// Usuario ID
+  ///
   const { userId } = route.params;
 
-  // Configurar el header
+  ///
+  /// Configurar el header
+  ///
   useLayoutEffect(() => {
+    ///
+    /// Configurar el header
+    ///
     navigation.setOptions({
+      ///
+      /// Header
+      ///
       header: () => (
         <Header
           title="Perfil"
@@ -25,15 +54,20 @@ export const ProfileScreen: React.FC = () => {
           isSettingsStyle={false} // Importante: NO usamos el estilo de settings
         />
       ),
+
+      ///
+      /// Header visible
+      ///
       headerShown: true,
     });
   }, [navigation]);
 
+  ///
+  /// Renderizado
+  ///
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
-    >
-      <View style={styles.content}>
+    <SafeAreaView style={[styles.container]}>
+      <View style={[styles.content, { backgroundColor: "transparent" }]}>
         <Text style={[styles.title, { color: theme.text.primary }]}>
           Perfil de Usuario
         </Text>
@@ -48,12 +82,14 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   content: {
     flex: 1,
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "transparent",
   },
   title: {
     fontSize: 24,

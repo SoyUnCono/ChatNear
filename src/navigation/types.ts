@@ -81,6 +81,11 @@ export type MainStackParamList = {
   /// Notificaciones
   ///
   Notifications: undefined;
+
+  ///
+  /// Filtros de búsqueda
+  ///
+  SearchFilters: undefined;
 };
 
 ////

@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { ScrollView, StatusBar, Alert, Platform, Linking } from "react-native";
+import { ScrollView, StatusBar, Platform, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../../../contexts/ThemeContext";
 import { Section } from "../../components/Section";
@@ -7,6 +7,7 @@ import { SwitchItem } from "../../components/SwitchItem";
 import { Header } from "../../../../components/Header/Header";
 import { useNavigation } from "@react-navigation/native";
 import { useNotifications } from "./hooks/useNotifications";
+import { CustomAlert } from "../../../../components/CustomAlert";
 
 ////
 /// Componente : Ajustes de notificaciones
@@ -45,10 +46,12 @@ export const NotificationSettings: React.FC = () => {
   const handlePushToggle = async (value: boolean) => {
     if (value) {
       // Si estamos activando las notificaciones, mostrar un diálogo explicativo
-      Alert.alert(
-        "Permisos de notificación",
-        "Para recibir notificaciones, necesitamos tu permiso. ¿Deseas activarlas?",
-        [
+      CustomAlert.show({
+        title: "Permisos de notificación",
+        message:
+          "Para recibir notificaciones, necesitamos tu permiso. ¿Deseas activarlas?",
+        type: "info",
+        buttons: [
           {
             text: "No, gracias",
             style: "cancel",
@@ -56,16 +59,19 @@ export const NotificationSettings: React.FC = () => {
           {
             text: "Activar",
             onPress: () => updateSetting("pushEnabled", true),
+            style: "default",
           },
-        ]
-      );
+        ],
+      });
     } else {
       // Si estamos desactivando, mostrar opciones según la plataforma
       if (Platform.OS === "ios") {
-        Alert.alert(
-          "Desactivar notificaciones",
-          "Para desactivar las notificaciones, necesitas ir a la configuración del sistema",
-          [
+        CustomAlert.show({
+          title: "Desactivar notificaciones",
+          message:
+            "Para desactivar las notificaciones, necesitas ir a la configuración del sistema",
+          type: "warning",
+          buttons: [
             {
               text: "Cancelar",
               style: "cancel",
@@ -73,9 +79,10 @@ export const NotificationSettings: React.FC = () => {
             {
               text: "Ir a Configuración",
               onPress: () => Linking.openSettings(),
+              style: "default",
             },
-          ]
-        );
+          ],
+        });
       } else {
         // En Android podemos desactivar directamente
         updateSetting("pushEnabled", false);
@@ -88,15 +95,16 @@ export const NotificationSettings: React.FC = () => {
   ////
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: theme.background.primary }}
+      style={{ flex: 1, backgroundColor: "transparent" }}
       edges={["bottom"]}
     >
       <StatusBar
-        backgroundColor={theme.background.primary}
+        backgroundColor="transparent"
         barStyle={isDarkMode ? "light-content" : "dark-content"}
+        translucent
       />
 
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: "transparent" }}>
         <Section title="NOTIFICACIONES PUSH">
           <SwitchItem
             title="Permitir notificaciones"

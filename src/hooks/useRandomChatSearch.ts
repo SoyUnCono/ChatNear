@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../services/supabase";
 import { matchmaker, matchmakerEvents } from "../services/matchmaker";
@@ -7,6 +6,8 @@ import {
   NavigationProp,
   ChatParticipantPayload,
 } from "../contexts/types/RandomChatTypes";
+import { CustomAlert } from "../components/CustomAlert";
+import { pushNotifications } from "../services/notifications/pushNotifications";
 
 export const useRandomChatSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
@@ -114,18 +115,53 @@ export const useRandomChatSearch = () => {
             }
 
             const chatId = (payload.new as ChatParticipantPayload).chat_id;
-            console.log("Navegando al chat:", chatId);
 
-            // Navegar al chat usando replace
-            navigation.replace("Chat", { chatId });
+            // Obtener información del otro usuario
+            const { data: chatData } = await supabase
+              .from("chat_participants")
+              .select(
+                `
+                chat_id,
+                user:profiles!inner(
+                  id,
+                  username,
+                  name
+                )
+              `
+              )
+              .eq("chat_id", chatId)
+              .neq("user_id", user.id)
+              .single();
 
-            // Mostrar mensaje de éxito
-            setTimeout(() => {
-              Alert.alert(
-                "¡Match encontrado!",
-                "Se ha encontrado un chat para ti."
-              );
-            }, 500);
+            type UserProfile = {
+              id: string;
+              username?: string;
+              name?: string;
+            };
+
+            const otherUser = chatData?.user as unknown as UserProfile;
+            const displayName = otherUser?.username
+              ? `@${otherUser.username}`
+              : otherUser?.name || "Usuario";
+
+            // Enviar notificación push al otro usuario
+            if (otherUser) {
+              await pushNotifications.sendNewMatchNotification({
+                userId: user.id,
+                userName: displayName,
+                matchScore: 100, // Puedes calcular esto basado en la distancia o otros factores
+                chatId: chatId,
+              });
+            }
+
+            // Mostrar mensaje de éxito con el nombre del usuario
+            CustomAlert.success(
+              "¡Match encontrado!",
+              `Has hecho match con ${displayName}. ¡Comienza a chatear!`
+            );
+
+            // Navegar al chat usando navigate en lugar de replace
+            navigation.navigate("Chat", { chatId });
           }
         }
       )
@@ -136,7 +172,7 @@ export const useRandomChatSearch = () => {
       console.error("Error en matchmaking:", error);
       if (searchRef.current.isActive) {
         setIsSearching(false);
-        Alert.alert(
+        CustomAlert.error(
           "Error",
           "Hubo un problema al buscar chat. Por favor intenta nuevamente."
         );
@@ -163,7 +199,7 @@ export const useRandomChatSearch = () => {
   const startSearch = useCallback(
     async (location: { lat: number; lng: number } | null) => {
       if (!location) {
-        Alert.alert(
+        CustomAlert.error(
           "Error",
           "Necesitamos acceso a tu ubicación para encontrar personas cercanas"
         );
@@ -175,7 +211,7 @@ export const useRandomChatSearch = () => {
           data: { user },
         } = await supabase.auth.getUser();
         if (!user) {
-          Alert.alert("Error", "No se pudo obtener el usuario actual");
+          CustomAlert.error("Error", "No se pudo obtener el usuario actual");
           return;
         }
 
@@ -194,7 +230,7 @@ export const useRandomChatSearch = () => {
 
         if (insertError) {
           console.error("Error insertando en la cola:", insertError);
-          Alert.alert("Error", "No se pudo iniciar la búsqueda");
+          CustomAlert.error("Error", "No se pudo iniciar la búsqueda");
           return;
         }
 
@@ -202,7 +238,7 @@ export const useRandomChatSearch = () => {
         setIsSearching(true);
       } catch (error) {
         console.error("Error inesperado:", error);
-        Alert.alert(
+        CustomAlert.error(
           "Error",
           error instanceof Error
             ? error.message

@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -18,6 +17,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { AvatarPicker } from "../../components/AvatarPicker";
 import { Ionicons } from "@expo/vector-icons";
+import { CustomAlert } from "../../components/CustomAlert";
+import { AnimatedBackground } from "../../components/AnimatedBackground";
 
 ////
 /// Tipos
@@ -49,23 +50,14 @@ export const RegisterScreen: React.FC = () => {
   /// Manejador de registro
   ////
   const handleRegister = async () => {
-    ////
-    /// Validar campos
-    ////
     if (!email || !password || !username) {
-      Alert.alert("Error", "Por favor completa todos los campos");
+      CustomAlert.error("Error", "Por favor completa todos los campos");
       return;
     }
 
-    ////
-    /// Activar loading
-    ////
     setLoading(true);
 
     try {
-      ////
-      /// Intentar registro
-      ////
       await signUp({
         email,
         password,
@@ -73,17 +65,11 @@ export const RegisterScreen: React.FC = () => {
         avatarUri: avatarUri || undefined,
       });
     } catch (error) {
-      ////
-      /// Manejar error
-      ////
-      Alert.alert(
+      CustomAlert.error(
         "Error",
         error instanceof Error ? error.message : "Error al registrarse"
       );
     } finally {
-      ////
-      /// Desactivar loading
-      ////
       setLoading(false);
     }
   };
@@ -92,163 +78,167 @@ export const RegisterScreen: React.FC = () => {
   /// Renderizado
   ////
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background.primary }]}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.content}
+    <AnimatedBackground intensity={0.15}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
       >
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.action.primary }]}>
-              ChatNear
-            </Text>
-            <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
-              Crea tu cuenta
-            </Text>
-          </View>
-
-          <AvatarPicker imageUri={avatarUri} onImageSelected={setAvatarUri} />
-
-          <View style={styles.form}>
-            {/* Username Input */}
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={theme.icon.secondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.background.secondary,
-                    color: theme.text.primary,
-                  },
-                ]}
-                placeholder="Nombre de usuario"
-                placeholderTextColor={theme.text.tertiary}
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                editable={!loading}
-              />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.content}
+        >
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: theme.action.primary }]}>
+                ChatNear
+              </Text>
+              <Text style={[styles.subtitle, { color: theme.text.secondary }]}>
+                Crea tu cuenta
+              </Text>
             </View>
 
-            {/* Email Input */}
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={theme.icon.secondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.background.secondary,
-                    color: theme.text.primary,
-                  },
-                ]}
-                placeholder="Email"
-                placeholderTextColor={theme.text.tertiary}
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                editable={!loading}
-              />
-            </View>
+            <AvatarPicker imageUri={avatarUri} onImageSelected={setAvatarUri} />
 
-            {/* Password Input */}
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={theme.icon.secondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: theme.background.secondary,
-                    color: theme.text.primary,
-                  },
-                ]}
-                placeholder="Contraseña"
-                placeholderTextColor={theme.text.tertiary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                editable={!loading}
-              />
-              <TouchableOpacity
-                style={styles.passwordToggle}
-                onPress={() => setShowPassword(!showPassword)}
-              >
+            <View style={styles.form}>
+              {/* Username Input */}
+              <View style={styles.inputContainer}>
                 <Ionicons
-                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  name="person-outline"
                   size={20}
                   color={theme.icon.secondary}
+                  style={styles.inputIcon}
                 />
-              </TouchableOpacity>
-            </View>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.background.secondary,
+                      color: theme.text.primary,
+                    },
+                  ]}
+                  placeholder="Nombre de usuario"
+                  placeholderTextColor={theme.text.tertiary}
+                  value={username}
+                  onChangeText={setUsername}
+                  autoCapitalize="none"
+                  editable={!loading}
+                />
+              </View>
 
-            <TouchableOpacity
-              style={[
-                styles.button,
-                { backgroundColor: theme.action.primary },
-                loading && { backgroundColor: theme.action.disabled },
-              ]}
-              onPress={handleRegister}
-              disabled={loading}
-            >
-              {loading ? (
-                <View style={styles.loadingContainer}>
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color={theme.icon.secondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.background.secondary,
+                      color: theme.text.primary,
+                    },
+                  ]}
+                  placeholder="Email"
+                  placeholderTextColor={theme.text.tertiary}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!loading}
+                />
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={theme.icon.secondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.background.secondary,
+                      color: theme.text.primary,
+                    },
+                  ]}
+                  placeholder="Contraseña"
+                  placeholderTextColor={theme.text.tertiary}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={styles.passwordToggle}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
                   <Ionicons
-                    name="sync"
-                    size={24}
-                    color={theme.text.inverse}
-                    style={styles.loadingIcon}
+                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                    size={20}
+                    color={theme.icon.secondary}
                   />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { backgroundColor: theme.action.primary },
+                  loading && { backgroundColor: theme.action.disabled },
+                ]}
+                onPress={handleRegister}
+                disabled={loading}
+              >
+                {loading ? (
+                  <View style={styles.loadingContainer}>
+                    <Ionicons
+                      name="sync"
+                      size={24}
+                      color={theme.text.inverse}
+                      style={styles.loadingIcon}
+                    />
+                    <Text
+                      style={[styles.buttonText, { color: theme.text.inverse }]}
+                    >
+                      Registrando...
+                    </Text>
+                  </View>
+                ) : (
                   <Text
                     style={[styles.buttonText, { color: theme.text.inverse }]}
                   >
-                    Registrando...
+                    Registrarse
                   </Text>
-                </View>
-              ) : (
-                <Text
-                  style={[styles.buttonText, { color: theme.text.inverse }]}
-                >
-                  Registrarse
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+                )}
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: theme.text.secondary }]}>
-              ¿Ya tienes una cuenta?
-            </Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Login")}
-              disabled={loading}
-            >
+            <View style={styles.footer}>
               <Text
-                style={[styles.footerLink, { color: theme.action.primary }]}
+                style={[styles.footerText, { color: theme.text.secondary }]}
               >
-                Inicia sesión
+                ¿Ya tienes una cuenta?
               </Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Login")}
+                disabled={loading}
+              >
+                <Text
+                  style={[styles.footerLink, { color: theme.action.primary }]}
+                >
+                  Inicia sesión
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </AnimatedBackground>
   );
 };
 
@@ -258,10 +248,13 @@ export const RegisterScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
   content: {
     flex: 1,
     padding: 20,
+    justifyContent: "center",
+    backgroundColor: "transparent",
   },
   header: {
     alignItems: "center",

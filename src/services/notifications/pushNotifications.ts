@@ -152,6 +152,10 @@ interface NewMatchNotification extends BaseNotificationData {
     /// Puntuación del match
     ///
     matchScore: number;
+    ///
+    /// Id del chat
+    ///
+    chatId: string;
   };
 }
 
@@ -413,6 +417,10 @@ class PushNotificationService {
     /// Puntuación del match
     ///
     matchScore,
+    ///
+    /// Id del chat
+    ///
+    chatId,
   }: NewMatchNotification["data"]) {
     ///
     /// Retornar la notificación
@@ -450,6 +458,10 @@ class PushNotificationService {
           /// Puntuación del match
           ///
           matchScore,
+          ///
+          /// Id del chat
+          ///
+          chatId,
         },
       },
     });
